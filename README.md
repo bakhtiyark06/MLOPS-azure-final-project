@@ -123,6 +123,27 @@ python mlops/drift_detection.py
 python mlops/openrouter_report.py
 ```
 
+## Dashboard
+
+Start the API and open the dark MLOps dashboard in a browser:
+
+```bash
+uvicorn app.main:app --reload
+```
+
+| URL | Page |
+|-----|------|
+| <http://localhost:8000> | Iris MLOps dashboard (pipeline status, model metrics, live prediction) |
+| <http://localhost:8000/demo> | Full system architecture walkthrough |
+| <http://localhost:8000/demo/flow> | Clickable, line-by-line pipeline flow explorer |
+| <http://localhost:8000/docs> | Swagger UI (interactive API docs) |
+
+The dashboard is served directly by FastAPI as plain HTML/CSS/JS (no separate
+frontend). Requesting `/` with `Accept: application/json` still returns the
+machine-readable service descriptor, so existing clients are unaffected. Static
+offline copies live at [`docs/demo_showcase.html`](docs/demo_showcase.html) and
+[`docs/flow_explorer.html`](docs/flow_explorer.html).
+
 ## Azure setup
 
 Full provisioning commands are in [`docs/azure_setup.md`](docs/azure_setup.md).

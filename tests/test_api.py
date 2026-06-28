@@ -25,10 +25,66 @@ def test_health_endpoint() -> None:
 
 
 def test_root_endpoint() -> None:
-    """GET / returns a small service descriptor."""
+    """GET / returns a JSON service descriptor for non-browser clients."""
     response = client.get("/")
     assert response.status_code == 200
     assert response.json()["service"] == "Iris MLOps API"
+
+
+def test_root_endpoint_json_explicit() -> None:
+    """An explicit JSON Accept header still returns the descriptor."""
+    response = client.get("/", headers={"Accept": "application/json"})
+    assert response.status_code == 200
+    assert response.json()["docs"] == "/docs"
+    assert "sample_request" in response.json()
+
+
+def test_root_endpoint_html_for_browsers() -> None:
+    """A browser-style Accept header returns the dark HTML dashboard."""
+    response = client.get("/", headers={"Accept": "text/html"})
+    assert response.status_code == 200
+    assert response.headers["content-type"].startswith("text/html")
+    body = response.text
+    assert "<!DOCTYPE html>" in body
+    assert "Iris MLOps Dashboard" in body
+    assert "/predict" in body
+
+
+def test_demo_page() -> None:
+    """GET /demo returns the architecture walkthrough HTML page."""
+    response = client.get("/demo")
+    assert response.status_code == 200
+    assert response.headers["content-type"].startswith("text/html")
+    body = response.text
+    assert "System Architecture" in body
+    # A few required components must be present on the page.
+    for component in ["GitHub Actions", "Azure ML", "Evidently Drift", "OpenRouter Report", "AKS Production"]:
+        assert component in body
+
+
+def test_demo_flow_page() -> None:
+    """GET /demo/flow returns the clickable flow explorer with all steps."""
+    response = client.get("/demo/flow")
+    assert response.status_code == 200
+    body = response.text
+    assert "Flow Explorer" in body
+    assert "Data Ingestion" in body
+    assert "OpenRouter AI Report" in body
+    assert "Next step" in body
+
+
+def test_drift_report_route() -> None:
+    """GET /reports/drift returns HTML (the report or a friendly placeholder)."""
+    response = client.get("/reports/drift")
+    assert response.status_code in (200, 404)
+    assert response.headers["content-type"].startswith("text/html")
+
+
+def test_openrouter_report_route() -> None:
+    """GET /reports/openrouter returns HTML (the report or a placeholder)."""
+    response = client.get("/reports/openrouter")
+    assert response.status_code in (200, 404)
+    assert response.headers["content-type"].startswith("text/html")
 
 
 def test_predict_returns_valid_response() -> None:

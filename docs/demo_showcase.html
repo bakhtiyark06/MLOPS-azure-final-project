@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <title>MLOps Architecture</title>
+  <style>
+:root {
+  --bg0:#070b16; --bg1:#0f1830; --panel:#121c34; --panel2:#1a2848;
+  --text:#e6edf7; --muted:#93a4c4; --line:#23314f;
+  --blue:#4f8cff; --purple:#a368ff; --green:#34d399; --amber:#fbbf24; --red:#f87171;
+}
+* { box-sizing:border-box; }
+body {
+  margin:0; min-height:100vh; color:var(--text);
+  font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+  background:
+    radial-gradient(1100px 600px at 12% -8%, #1b2c54 0%, transparent 55%),
+    radial-gradient(900px 500px at 100% 0%, #2a1a4d 0%, transparent 50%),
+    linear-gradient(180deg, var(--bg1) 0%, var(--bg0) 100%);
+  background-attachment:fixed; line-height:1.55;
+}
+a { color:var(--blue); text-decoration:none; }
+a:hover { text-decoration:underline; }
+.nav {
+  position:sticky; top:0; z-index:10; backdrop-filter:blur(10px);
+  background:rgba(7,11,22,.7); border-bottom:1px solid var(--line);
+  display:flex; align-items:center; gap:18px; padding:12px 24px;
+}
+.nav .brand { font-weight:700; letter-spacing:-.01em; }
+.nav .brand .dot { color:var(--purple); }
+.nav .links { display:flex; gap:6px; margin-left:auto; flex-wrap:wrap; }
+.nav .links a {
+  color:var(--muted); padding:6px 12px; border-radius:8px; font-size:.9rem;
+  border:1px solid transparent;
+}
+.nav .links a:hover { color:var(--text); text-decoration:none; background:var(--panel2); }
+.nav .links a.active { color:var(--text); border-color:var(--line); background:var(--panel); }
+.wrap { max-width:1080px; margin:0 auto; padding:32px 24px 80px; }
+.hero h1 { font-size:2.05rem; margin:0 0 6px; letter-spacing:-.02em; }
+.hero p { color:var(--muted); margin:0 0 16px; max-width:720px; }
+.badges { display:flex; flex-wrap:wrap; gap:8px; margin-bottom:26px; }
+.badge {
+  font-size:.78rem; padding:4px 11px; border-radius:999px;
+  background:var(--panel2); border:1px solid var(--line); color:var(--text);
+}
+.badge.green { border-color:#14532d; background:#06281b; color:#6ee7b7; }
+.badge.blue  { border-color:#13335f; background:#0a2142; color:#93c5fd; }
+.badge.purple{ border-color:#3b1f63; background:#1c113a; color:#c4b5fd; }
+.badge.amber { border-color:#5a4410; background:#2c2107; color:#fcd34d; }
+.badge.red   { border-color:#5b1d1d; background:#2c0d0d; color:#fca5a5; }
+h2.section { font-size:1.05rem; text-transform:uppercase; letter-spacing:.08em; color:var(--muted); margin:34px 0 14px; }
+.grid { display:grid; gap:14px; }
+.g6 { grid-template-columns:repeat(auto-fit,minmax(150px,1fr)); }
+.g4 { grid-template-columns:repeat(auto-fit,minmax(210px,1fr)); }
+.g3 { grid-template-columns:repeat(auto-fit,minmax(240px,1fr)); }
+.g2 { grid-template-columns:repeat(auto-fit,minmax(320px,1fr)); }
+.card {
+  background:linear-gradient(180deg,var(--panel) 0%, #0e1730 100%);
+  border:1px solid var(--line); border-radius:14px; padding:16px 18px;
+}
+.card .k { color:var(--muted); font-size:.8rem; text-transform:uppercase; letter-spacing:.05em; }
+.card .v { font-size:1.5rem; font-weight:700; margin-top:4px; }
+.card .sub { color:var(--muted); font-size:.82rem; margin-top:4px; }
+.stage { display:flex; flex-direction:column; gap:8px; }
+.stage .top { display:flex; align-items:center; justify-content:space-between; }
+.stage .name { font-weight:600; }
+.dotpill { display:inline-flex; align-items:center; gap:6px; font-size:.76rem; color:var(--muted); }
+.dotpill::before { content:""; width:9px; height:9px; border-radius:50%; background:var(--muted); }
+.dotpill.ok::before { background:var(--green); box-shadow:0 0 10px var(--green); }
+.dotpill.ready::before { background:var(--blue); box-shadow:0 0 10px var(--blue); }
+.dotpill.skip::before { background:var(--amber); }
+.dotpill.off::before { background:var(--red); }
+.linkrow { display:flex; flex-wrap:wrap; gap:10px; }
+.btn {
+  display:inline-block; padding:9px 14px; border-radius:10px; font-size:.9rem; cursor:pointer;
+  border:1px solid var(--line); background:var(--panel2); color:var(--text);
+}
+.btn:hover { text-decoration:none; border-color:var(--blue); }
+.btn.primary { background:linear-gradient(90deg,var(--blue),var(--purple)); border:none; color:#fff; font-weight:600; }
+.btn.primary:hover { filter:brightness(1.08); }
+label.slabel { display:flex; justify-content:space-between; font-size:.85rem; color:var(--muted); margin:12px 0 4px; }
+label.slabel b { color:var(--text); }
+input[type=range] { width:100%; accent-color:var(--purple); }
+.result { text-align:center; padding:8px 0; }
+.result .cls { font-size:1.8rem; font-weight:800; background:linear-gradient(90deg,var(--blue),var(--purple)); -webkit-background-clip:text; background-clip:text; color:transparent; }
+.bar { height:12px; border-radius:999px; background:var(--panel2); overflow:hidden; border:1px solid var(--line); }
+.bar > span { display:block; height:100%; background:linear-gradient(90deg,var(--green),#10b981); width:0%; transition:width .5s ease; }
+.barrow { margin:10px 0; }
+.barrow .lab { display:flex; justify-content:space-between; font-size:.8rem; color:var(--muted); margin-bottom:4px; }
+pre { background:#070d1c; border:1px solid var(--line); border-radius:12px; padding:14px 16px; overflow-x:auto; margin:0;
+  font-family:"SFMono-Regular",Consolas,Menlo,monospace; font-size:.84rem; color:#cbd5e1; }
+.step { border:1px solid var(--line); border-radius:14px; overflow:hidden; margin-bottom:12px; background:var(--panel); }
+.step > button {
+  width:100%; text-align:left; cursor:pointer; border:none; background:transparent; color:var(--text);
+  display:flex; align-items:center; gap:14px; padding:16px 18px; font-size:1rem;
+}
+.step > button:hover { background:var(--panel2); }
+.step .num {
+  flex:0 0 auto; width:34px; height:34px; border-radius:10px; display:grid; place-items:center;
+  font-weight:700; background:linear-gradient(135deg,var(--blue),var(--purple)); color:#fff;
+}
+.step .arrow { margin-left:auto; color:var(--muted); transition:transform .2s ease; }
+.step.open .arrow { transform:rotate(90deg); }
+.step .body { display:none; padding:4px 18px 18px 66px; border-top:1px solid var(--line); }
+.step.open .body { display:block; }
+.kv { display:grid; grid-template-columns:130px 1fr; gap:6px 14px; margin-top:10px; font-size:.9rem; }
+.kv .key { color:var(--muted); }
+.flowline { display:flex; flex-wrap:wrap; align-items:center; gap:8px; margin:16px 0 6px; }
+.chip { padding:7px 12px; border-radius:10px; background:var(--panel); border:1px solid var(--line); font-size:.85rem; }
+.chip .sub { color:var(--muted); font-size:.74rem; display:block; }
+.sep { color:var(--purple); font-weight:700; }
+footer { color:var(--muted); font-size:.82rem; border-top:1px solid var(--line); margin-top:40px; padding-top:18px; }
+code.inline { background:var(--panel2); padding:1px 6px; border-radius:6px; font-size:.85em; }
+</style>
+</head>
+<body>
+<nav class="nav">
+  <div class="brand">Iris MLOps<span class="dot">.</span></div>
+  <div class="links">
+    <a href="/">Dashboard</a>
+    <a href="/demo" class="active">Architecture</a>
+    <a href="/demo/flow">Flow Explorer</a>
+    <a href="/docs">Swagger</a>
+    <a href="/health">Health</a>
+  </div>
+</nav>
+<div class="wrap">
+
+<div class="hero">
+  <h1>System Architecture</h1>
+  <p>End-to-end MLOps pipeline on Microsoft Azure. A push to GitHub runs CI; a merge to main runs CD,
+     promoting a gated model through staging and into production with monitoring at every layer.</p>
+  <div class="badges">
+    <span class="badge green">CI/CD automated</span>
+    <span class="badge blue">Azure native</span>
+    <span class="badge purple">Graceful offline mode</span>
+  </div>
+</div>
+
+<h2 class="section">End-to-end flow</h2>
+<div class="card"><div class="flowline"><div class="chip">Developer<span class="sub">git push</span></div><span class="sep">&rarr;</span><div class="chip">GitHub Actions<span class="sub">CI + CD</span></div><span class="sep">&rarr;</span><div class="chip">Tests<span class="sub">pytest 70%+</span></div><span class="sep">&rarr;</span><div class="chip">Train<span class="sub">MLflow</span></div><span class="sep">&rarr;</span><div class="chip">Quality Gate<span class="sub">accuracy >= 0.90</span></div><span class="sep">&rarr;</span><div class="chip">Azure ML<span class="sub">register</span></div><span class="sep">&rarr;</span><div class="chip">Docker<span class="sub">build</span></div><span class="sep">&rarr;</span><div class="chip">ACR<span class="sub">push image</span></div><span class="sep">&rarr;</span><div class="chip">ACI<span class="sub">staging + smoke</span></div><span class="sep">&rarr;</span><div class="chip">AKS<span class="sub">production + smoke</span></div><span class="sep">&rarr;</span><div class="chip">FastAPI<span class="sub">serve /predict</span></div><span class="sep">&rarr;</span><div class="chip">App Insights<span class="sub">telemetry</span></div><span class="sep">&rarr;</span><div class="chip">Evidently<span class="sub">drift</span></div><span class="sep">&rarr;</span><div class="chip">OpenRouter<span class="sub">AI report</span></div></div></div>
+
+<h2 class="section">Pipeline</h2><div class="grid g3"><div class="card"><div class="name" style="font-weight:600">GitHub Actions</div>
+            <div class="sub" style="color:var(--muted);font-size:.84rem;margin-top:4px">CI/CD orchestration</div></div><div class="card"><div class="name" style="font-weight:600">MLflow</div>
+            <div class="sub" style="color:var(--muted);font-size:.84rem;margin-top:4px">Experiment tracking</div></div><div class="card"><div class="name" style="font-weight:600">Quality Gate</div>
+            <div class="sub" style="color:var(--muted);font-size:.84rem;margin-top:4px">Accuracy threshold guard</div></div></div><h2 class="section">Azure</h2><div class="grid g3"><div class="card"><div class="name" style="font-weight:600">Azure ML</div>
+            <div class="sub" style="color:var(--muted);font-size:.84rem;margin-top:4px">Model registry + governance</div></div><div class="card"><div class="name" style="font-weight:600">Azure Blob Storage</div>
+            <div class="sub" style="color:var(--muted);font-size:.84rem;margin-top:4px">Dataset versioning</div></div><div class="card"><div class="name" style="font-weight:600">Azure Container Registry</div>
+            <div class="sub" style="color:var(--muted);font-size:.84rem;margin-top:4px">Image storage (ACR)</div></div></div><h2 class="section">Build</h2><div class="grid g3"><div class="card"><div class="name" style="font-weight:600">Docker</div>
+            <div class="sub" style="color:var(--muted);font-size:.84rem;margin-top:4px">Reproducible packaging</div></div></div><h2 class="section">Deploy</h2><div class="grid g3"><div class="card"><div class="name" style="font-weight:600">ACI Staging</div>
+            <div class="sub" style="color:var(--muted);font-size:.84rem;margin-top:4px">Pre-prod validation</div></div><div class="card"><div class="name" style="font-weight:600">AKS Production</div>
+            <div class="sub" style="color:var(--muted);font-size:.84rem;margin-top:4px">Scalable serving</div></div></div><h2 class="section">Serve</h2><div class="grid g3"><div class="card"><div class="name" style="font-weight:600">FastAPI</div>
+            <div class="sub" style="color:var(--muted);font-size:.84rem;margin-top:4px">REST inference API</div></div></div><h2 class="section">Monitor</h2><div class="grid g3"><div class="card"><div class="name" style="font-weight:600">Application Insights</div>
+            <div class="sub" style="color:var(--muted);font-size:.84rem;margin-top:4px">Telemetry + logs</div></div><div class="card"><div class="name" style="font-weight:600">Evidently Drift</div>
+            <div class="sub" style="color:var(--muted);font-size:.84rem;margin-top:4px">Data drift detection</div></div><div class="card"><div class="name" style="font-weight:600">OpenRouter Report</div>
+            <div class="sub" style="color:var(--muted);font-size:.84rem;margin-top:4px">AI run summary</div></div></div>
+
+<h2 class="section">How it fits together</h2>
+<div class="grid g2">
+  <div class="card">
+    <div style="font-weight:600;margin-bottom:6px">Continuous Integration</div>
+    <div style="color:var(--muted);font-size:.9rem">Install deps &rarr; run tests &amp; coverage &rarr; ingest data &rarr;
+    train with MLflow &rarr; quality gate &rarr; drift detection &rarr; OpenRouter report. Artifacts uploaded for review.</div>
+  </div>
+  <div class="card">
+    <div style="font-weight:600;margin-bottom:6px">Continuous Deployment</div>
+    <div style="color:var(--muted);font-size:.9rem">Azure login &rarr; train &rarr; quality gate &rarr; register in Azure ML &rarr;
+    build &amp; push to ACR &rarr; ACI staging + smoke test &rarr; AKS production + smoke test.</div>
+  </div>
+</div>
+
+<div class="linkrow" style="margin-top:22px">
+  <a class="btn primary" href="/demo/flow">Open the line-by-line flow explorer &rarr;</a>
+  <a class="btn" href="/">Back to dashboard</a>
+</div>
+
+<footer>Architecture overview &middot; see docs/architecture.md for the full write-up.</footer>
+</div>
+</body>
+</html>
