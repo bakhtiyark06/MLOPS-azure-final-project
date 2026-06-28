@@ -56,9 +56,9 @@ def test_demo_page() -> None:
     assert response.status_code == 200
     assert response.headers["content-type"].startswith("text/html")
     body = response.text
-    assert "System Architecture" in body
+    assert "Full system architecture" in body
     # A few required components must be present on the page.
-    for component in ["GitHub Actions", "Azure ML", "Evidently Drift", "OpenRouter Report", "AKS Production"]:
+    for component in ["GitHub Actions", "Azure ML", "Evidently Drift", "OpenRouter", "AKS Production"]:
         assert component in body
 
 
@@ -68,9 +68,9 @@ def test_demo_flow_page() -> None:
     assert response.status_code == 200
     body = response.text
     assert "Flow Explorer" in body
-    assert "Data Ingestion" in body
-    assert "OpenRouter AI Report" in body
-    assert "Next step" in body
+    assert "Load Iris dataset" in body
+    assert "OpenRouter AI report" in body
+    assert "Next line" in body
 
 
 def test_drift_report_route() -> None:
@@ -97,6 +97,17 @@ def test_predict_returns_valid_response() -> None:
     assert "class" in body  # serialised via alias
     assert 0.0 <= body["confidence"] <= 1.0
     assert body["class"] == "setosa"
+
+
+def test_predict_includes_probabilities() -> None:
+    """The additive probabilities field exposes one entry per class summing to ~1."""
+    payload = {"sepal_length": 5.1, "sepal_width": 3.5, "petal_length": 1.4, "petal_width": 0.2}
+    body = client.post("/predict", json=payload).json()
+    probs = body.get("probabilities")
+    assert probs is not None
+    for cls in ("setosa", "versicolor", "virginica"):
+        assert cls in probs
+    assert abs(sum(probs.values()) - 1.0) < 0.01
 
 
 def test_predict_rejects_missing_field() -> None:

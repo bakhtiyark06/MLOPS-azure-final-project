@@ -1,316 +1,148 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="utf-8"/>
-  <meta name="viewport" content="width=device-width, initial-scale=1"/>
-  <title>MLOps Flow Explorer</title>
-  <style>
-:root {
-  --bg0:#070b16; --bg1:#0f1830; --panel:#121c34; --panel2:#1a2848;
-  --text:#e6edf7; --muted:#93a4c4; --line:#23314f;
-  --blue:#4f8cff; --purple:#a368ff; --green:#34d399; --amber:#fbbf24; --red:#f87171;
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"/><meta name="viewport" content="width=device-width, initial-scale=1"/><title>MLOps Flow Explorer</title><style>
+:root{
+  --bg0:#05070f; --bg1:#0b1226; --bg2:#0e1730;
+  --glass:rgba(20,30,56,.55); --glass2:rgba(28,40,72,.5);
+  --text:#e8eefc; --muted:#94a6c9; --line:rgba(86,113,168,.32);
+  --blue:#4f8cff; --purple:#a368ff; --green:#34d399; --amber:#fbbf24; --red:#f87171; --cyan:#38e1ff;
 }
-* { box-sizing:border-box; }
-body {
+*{box-sizing:border-box;}
+html{scroll-behavior:smooth;}
+body{
   margin:0; min-height:100vh; color:var(--text);
   font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
   background:
-    radial-gradient(1100px 600px at 12% -8%, #1b2c54 0%, transparent 55%),
-    radial-gradient(900px 500px at 100% 0%, #2a1a4d 0%, transparent 50%),
-    linear-gradient(180deg, var(--bg1) 0%, var(--bg0) 100%);
-  background-attachment:fixed; line-height:1.55;
+    radial-gradient(1200px 700px at 10% -12%, rgba(46,86,170,.30) 0%, transparent 55%),
+    radial-gradient(1000px 620px at 100% -6%, rgba(120,60,210,.26) 0%, transparent 52%),
+    radial-gradient(900px 600px at 50% 120%, rgba(40,120,180,.18) 0%, transparent 60%),
+    linear-gradient(180deg,var(--bg1) 0%, var(--bg0) 100%);
+  background-attachment:fixed; line-height:1.55; letter-spacing:.1px;
 }
-a { color:var(--blue); text-decoration:none; }
-a:hover { text-decoration:underline; }
-.nav {
-  position:sticky; top:0; z-index:10; backdrop-filter:blur(10px);
-  background:rgba(7,11,22,.7); border-bottom:1px solid var(--line);
-  display:flex; align-items:center; gap:18px; padding:12px 24px;
+a{color:var(--blue); text-decoration:none;}
+a:hover{text-decoration:underline;}
+.nav{
+  position:sticky; top:0; z-index:30; backdrop-filter:blur(14px);
+  background:rgba(5,7,15,.72); border-bottom:1px solid var(--line);
+  display:flex; align-items:center; gap:16px; padding:12px 22px;
 }
-.nav .brand { font-weight:700; letter-spacing:-.01em; }
-.nav .brand .dot { color:var(--purple); }
-.nav .links { display:flex; gap:6px; margin-left:auto; flex-wrap:wrap; }
-.nav .links a {
-  color:var(--muted); padding:6px 12px; border-radius:8px; font-size:.9rem;
-  border:1px solid transparent;
+.nav .brand{font-weight:800; letter-spacing:-.01em;}
+.nav .brand .dot{color:var(--purple);}
+.nav .links{display:flex; gap:6px; margin-left:auto; flex-wrap:wrap;}
+.nav .links a{color:var(--muted); padding:7px 13px; border-radius:10px; font-size:.9rem; border:1px solid transparent;}
+.nav .links a:hover{color:var(--text); text-decoration:none; background:var(--glass2);}
+.nav .links a.active{color:#fff; border-color:var(--line); background:linear-gradient(90deg,rgba(79,140,255,.22),rgba(163,104,255,.22));}
+.wrap{max-width:1180px; margin:0 auto; padding:30px 22px 80px;}
+.hero h1{font-size:2.15rem; margin:0 0 6px; letter-spacing:-.02em;
+  background:linear-gradient(90deg,#fff 0%, #c9d8ff 60%, #c4b5fd 100%); -webkit-background-clip:text; background-clip:text; color:transparent;}
+.hero p{color:var(--muted); margin:0 0 16px; max-width:760px;}
+.badges{display:flex; flex-wrap:wrap; gap:8px; margin-bottom:24px;}
+.badge{font-size:.78rem; padding:5px 12px; border-radius:999px; background:var(--glass2); border:1px solid var(--line); color:var(--text);}
+.badge.green{border-color:rgba(52,211,153,.5); background:rgba(6,40,27,.6); color:#6ee7b7; box-shadow:0 0 0 1px rgba(52,211,153,.15) inset;}
+.badge.blue{border-color:rgba(79,140,255,.5); background:rgba(10,33,66,.6); color:#93c5fd;}
+.badge.purple{border-color:rgba(163,104,255,.5); background:rgba(28,17,58,.6); color:#c4b5fd;}
+.badge.amber{border-color:rgba(251,191,36,.45); background:rgba(44,33,7,.6); color:#fcd34d;}
+.badge.red{border-color:rgba(248,113,113,.5); background:rgba(44,13,13,.6); color:#fca5a5;}
+.badge .live{width:7px;height:7px;border-radius:50%;background:var(--green);display:inline-block;margin-right:6px;box-shadow:0 0 8px var(--green);vertical-align:middle;}
+h2.section{font-size:.95rem; text-transform:uppercase; letter-spacing:.12em; color:var(--muted); margin:34px 0 14px;}
+.grid{display:grid; gap:14px;}
+.g6{grid-template-columns:repeat(auto-fit,minmax(155px,1fr));}
+.g4{grid-template-columns:repeat(auto-fit,minmax(200px,1fr));}
+.g3{grid-template-columns:repeat(auto-fit,minmax(240px,1fr));}
+.g2{grid-template-columns:repeat(auto-fit,minmax(320px,1fr));}
+.card{
+  background:var(--glass); backdrop-filter:blur(10px);
+  border:1px solid var(--line); border-radius:16px; padding:16px 18px;
+  box-shadow:0 10px 30px rgba(0,0,0,.28);
 }
-.nav .links a:hover { color:var(--text); text-decoration:none; background:var(--panel2); }
-.nav .links a.active { color:var(--text); border-color:var(--line); background:var(--panel); }
-.wrap { max-width:1080px; margin:0 auto; padding:32px 24px 80px; }
-.hero h1 { font-size:2.05rem; margin:0 0 6px; letter-spacing:-.02em; }
-.hero p { color:var(--muted); margin:0 0 16px; max-width:720px; }
-.badges { display:flex; flex-wrap:wrap; gap:8px; margin-bottom:26px; }
-.badge {
-  font-size:.78rem; padding:4px 11px; border-radius:999px;
-  background:var(--panel2); border:1px solid var(--line); color:var(--text);
-}
-.badge.green { border-color:#14532d; background:#06281b; color:#6ee7b7; }
-.badge.blue  { border-color:#13335f; background:#0a2142; color:#93c5fd; }
-.badge.purple{ border-color:#3b1f63; background:#1c113a; color:#c4b5fd; }
-.badge.amber { border-color:#5a4410; background:#2c2107; color:#fcd34d; }
-.badge.red   { border-color:#5b1d1d; background:#2c0d0d; color:#fca5a5; }
-h2.section { font-size:1.05rem; text-transform:uppercase; letter-spacing:.08em; color:var(--muted); margin:34px 0 14px; }
-.grid { display:grid; gap:14px; }
-.g6 { grid-template-columns:repeat(auto-fit,minmax(150px,1fr)); }
-.g4 { grid-template-columns:repeat(auto-fit,minmax(210px,1fr)); }
-.g3 { grid-template-columns:repeat(auto-fit,minmax(240px,1fr)); }
-.g2 { grid-template-columns:repeat(auto-fit,minmax(320px,1fr)); }
-.card {
-  background:linear-gradient(180deg,var(--panel) 0%, #0e1730 100%);
-  border:1px solid var(--line); border-radius:14px; padding:16px 18px;
-}
-.card .k { color:var(--muted); font-size:.8rem; text-transform:uppercase; letter-spacing:.05em; }
-.card .v { font-size:1.5rem; font-weight:700; margin-top:4px; }
-.card .sub { color:var(--muted); font-size:.82rem; margin-top:4px; }
-.stage { display:flex; flex-direction:column; gap:8px; }
-.stage .top { display:flex; align-items:center; justify-content:space-between; }
-.stage .name { font-weight:600; }
-.dotpill { display:inline-flex; align-items:center; gap:6px; font-size:.76rem; color:var(--muted); }
-.dotpill::before { content:""; width:9px; height:9px; border-radius:50%; background:var(--muted); }
-.dotpill.ok::before { background:var(--green); box-shadow:0 0 10px var(--green); }
-.dotpill.ready::before { background:var(--blue); box-shadow:0 0 10px var(--blue); }
-.dotpill.skip::before { background:var(--amber); }
-.dotpill.off::before { background:var(--red); }
-.linkrow { display:flex; flex-wrap:wrap; gap:10px; }
-.btn {
-  display:inline-block; padding:9px 14px; border-radius:10px; font-size:.9rem; cursor:pointer;
-  border:1px solid var(--line); background:var(--panel2); color:var(--text);
-}
-.btn:hover { text-decoration:none; border-color:var(--blue); }
-.btn.primary { background:linear-gradient(90deg,var(--blue),var(--purple)); border:none; color:#fff; font-weight:600; }
-.btn.primary:hover { filter:brightness(1.08); }
-label.slabel { display:flex; justify-content:space-between; font-size:.85rem; color:var(--muted); margin:12px 0 4px; }
-label.slabel b { color:var(--text); }
-input[type=range] { width:100%; accent-color:var(--purple); }
-.result { text-align:center; padding:8px 0; }
-.result .cls { font-size:1.8rem; font-weight:800; background:linear-gradient(90deg,var(--blue),var(--purple)); -webkit-background-clip:text; background-clip:text; color:transparent; }
-.bar { height:12px; border-radius:999px; background:var(--panel2); overflow:hidden; border:1px solid var(--line); }
-.bar > span { display:block; height:100%; background:linear-gradient(90deg,var(--green),#10b981); width:0%; transition:width .5s ease; }
-.barrow { margin:10px 0; }
-.barrow .lab { display:flex; justify-content:space-between; font-size:.8rem; color:var(--muted); margin-bottom:4px; }
-pre { background:#070d1c; border:1px solid var(--line); border-radius:12px; padding:14px 16px; overflow-x:auto; margin:0;
-  font-family:"SFMono-Regular",Consolas,Menlo,monospace; font-size:.84rem; color:#cbd5e1; }
-.step { border:1px solid var(--line); border-radius:14px; overflow:hidden; margin-bottom:12px; background:var(--panel); }
-.step > button {
-  width:100%; text-align:left; cursor:pointer; border:none; background:transparent; color:var(--text);
-  display:flex; align-items:center; gap:14px; padding:16px 18px; font-size:1rem;
-}
-.step > button:hover { background:var(--panel2); }
-.step .num {
-  flex:0 0 auto; width:34px; height:34px; border-radius:10px; display:grid; place-items:center;
-  font-weight:700; background:linear-gradient(135deg,var(--blue),var(--purple)); color:#fff;
-}
-.step .arrow { margin-left:auto; color:var(--muted); transition:transform .2s ease; }
-.step.open .arrow { transform:rotate(90deg); }
-.step .body { display:none; padding:4px 18px 18px 66px; border-top:1px solid var(--line); }
-.step.open .body { display:block; }
-.kv { display:grid; grid-template-columns:130px 1fr; gap:6px 14px; margin-top:10px; font-size:.9rem; }
-.kv .key { color:var(--muted); }
-.flowline { display:flex; flex-wrap:wrap; align-items:center; gap:8px; margin:16px 0 6px; }
-.chip { padding:7px 12px; border-radius:10px; background:var(--panel); border:1px solid var(--line); font-size:.85rem; }
-.chip .sub { color:var(--muted); font-size:.74rem; display:block; }
-.sep { color:var(--purple); font-weight:700; }
-footer { color:var(--muted); font-size:.82rem; border-top:1px solid var(--line); margin-top:40px; padding-top:18px; }
-code.inline { background:var(--panel2); padding:1px 6px; border-radius:6px; font-size:.85em; }
-</style>
-</head>
-<body>
-<nav class="nav">
-  <div class="brand">Iris MLOps<span class="dot">.</span></div>
-  <div class="links">
-    <a href="/">Dashboard</a>
-    <a href="/demo">Architecture</a>
-    <a href="/demo/flow" class="active">Flow Explorer</a>
-    <a href="/docs">Swagger</a>
-    <a href="/health">Health</a>
-  </div>
-</nav>
-<div class="wrap">
-
-<div class="hero">
-  <h1>Flow Explorer</h1>
-  <p>Every pipeline stage, line by line. Click a step to see what happens, the files involved,
-     the command to run, its inputs and outputs, the Azure resources used, and what runs next.</p>
-  <div class="linkrow" style="margin-bottom:6px">
-    <button class="btn" onclick="expandAll()">Expand all</button>
-    <button class="btn" onclick="collapseAll()">Collapse all</button>
-    <a class="btn" href="/demo">Architecture</a>
-    <a class="btn" href="/">Dashboard</a>
-  </div>
-</div>
-
-
-<div class="step" id="step1">
-  <button onclick="toggle(1)">
-    <span class="num">1</span>
-    <span>Data Ingestion</span>
-    <span class="arrow">&rsaquo;</span>
-  </button>
-  <div class="body">
-    <p style="color:var(--muted);margin:6px 0 0">Load the Iris dataset, hash it, write raw + reference copies and a metadata sidecar, then optionally upload to Azure Blob Storage.</p>
-    <div class="kv">
-      <span class="key">Files / modules</span><span><code class='inline'>mlops/ingest_data.py</code></span>
-      <span class="key">Command</span><span><code class="inline">python mlops/ingest_data.py --no-upload</code></span>
-      <span class="key">Inputs</span><span>scikit-learn Iris bunch</span>
-      <span class="key">Outputs</span><span>data/raw/iris.csv, data/reference/reference.csv, data/raw/metadata.json</span>
-      <span class="key">Azure</span><span>Azure Blob Storage (optional)</span>
-      <span class="key">Next step</span><span><b style="color:var(--blue)">Model Training</b></span>
-    </div>
-  </div>
-</div>
-<div class="step" id="step2">
-  <button onclick="toggle(2)">
-    <span class="num">2</span>
-    <span>Model Training</span>
-    <span class="arrow">&rsaquo;</span>
-  </button>
-  <div class="body">
-    <p style="color:var(--muted);margin:6px 0 0">Stratified train/test split, fit a RandomForest, log params/metrics/artifacts to MLflow and save the model + reports.</p>
-    <div class="kv">
-      <span class="key">Files / modules</span><span><code class='inline'>mlops/train.py</code></span>
-      <span class="key">Command</span><span><code class="inline">python mlops/train.py</code></span>
-      <span class="key">Inputs</span><span>data/raw/iris.csv</span>
-      <span class="key">Outputs</span><span>models/model.joblib, reports/metrics.json, reports/confusion_matrix.png</span>
-      <span class="key">Azure</span><span>MLflow tracking (file or Azure ML)</span>
-      <span class="key">Next step</span><span><b style="color:var(--blue)">Quality Gate</b></span>
-    </div>
-  </div>
-</div>
-<div class="step" id="step3">
-  <button onclick="toggle(3)">
-    <span class="num">3</span>
-    <span>Quality Gate</span>
-    <span class="arrow">&rsaquo;</span>
-  </button>
-  <div class="body">
-    <p style="color:var(--muted);margin:6px 0 0">Compare accuracy to the threshold. Exit non-zero on failure so CI/CD halts before any deployment. Supports a demo-fail mode.</p>
-    <div class="kv">
-      <span class="key">Files / modules</span><span><code class='inline'>mlops/evaluate.py</code></span>
-      <span class="key">Command</span><span><code class="inline">python mlops/evaluate.py</code></span>
-      <span class="key">Inputs</span><span>reports/metrics.json</span>
-      <span class="key">Outputs</span><span>reports/quality_gate.json (exit 0 pass / 1 fail)</span>
-      <span class="key">Azure</span><span>None</span>
-      <span class="key">Next step</span><span><b style="color:var(--blue)">Model Registry</b></span>
-    </div>
-  </div>
-</div>
-<div class="step" id="step4">
-  <button onclick="toggle(4)">
-    <span class="num">4</span>
-    <span>Model Registry</span>
-    <span class="arrow">&rsaquo;</span>
-  </button>
-  <div class="body">
-    <p style="color:var(--muted);margin:6px 0 0">Register the approved model in Azure ML with governance tags: accuracy, dataset_hash, git_sha, created_by, project_name, version.</p>
-    <div class="kv">
-      <span class="key">Files / modules</span><span><code class='inline'>mlops/register_model.py</code>, <code class='inline'>mlops/azure_clients.py</code></span>
-      <span class="key">Command</span><span><code class="inline">python mlops/register_model.py</code></span>
-      <span class="key">Inputs</span><span>models/model.joblib, reports/metrics.json</span>
-      <span class="key">Outputs</span><span>reports/model_registration.json</span>
-      <span class="key">Azure</span><span>Azure Machine Learning workspace</span>
-      <span class="key">Next step</span><span><b style="color:var(--blue)">Container Build</b></span>
-    </div>
-  </div>
-</div>
-<div class="step" id="step5">
-  <button onclick="toggle(5)">
-    <span class="num">5</span>
-    <span>Container Build</span>
-    <span class="arrow">&rsaquo;</span>
-  </button>
-  <div class="body">
-    <p style="color:var(--muted);margin:6px 0 0">Build the FastAPI Docker image, tag with git SHA + latest and push to Azure Container Registry.</p>
-    <div class="kv">
-      <span class="key">Files / modules</span><span><code class='inline'>Dockerfile</code>, <code class='inline'>mlops/build_container.py</code></span>
-      <span class="key">Command</span><span><code class="inline">python mlops/build_container.py</code></span>
-      <span class="key">Inputs</span><span>app/, models/model.joblib, requirements-api.txt</span>
-      <span class="key">Outputs</span><span>Docker image in ACR</span>
-      <span class="key">Azure</span><span>Azure Container Registry</span>
-      <span class="key">Next step</span><span><b style="color:var(--blue)">Staging Deploy</b></span>
-    </div>
-  </div>
-</div>
-<div class="step" id="step6">
-  <button onclick="toggle(6)">
-    <span class="num">6</span>
-    <span>Staging Deploy (ACI)</span>
-    <span class="arrow">&rsaquo;</span>
-  </button>
-  <div class="body">
-    <p style="color:var(--muted);margin:6px 0 0">Deploy the image to Azure Container Instances and run an HTTP smoke test against /health and /predict.</p>
-    <div class="kv">
-      <span class="key">Files / modules</span><span><code class='inline'>mlops/deploy_aci.py</code></span>
-      <span class="key">Command</span><span><code class="inline">python mlops/deploy_aci.py --tag latest</code></span>
-      <span class="key">Inputs</span><span>ACR image</span>
-      <span class="key">Outputs</span><span>Running ACI container + smoke-test result</span>
-      <span class="key">Azure</span><span>Azure Container Instances</span>
-      <span class="key">Next step</span><span><b style="color:var(--blue)">Production Deploy</b></span>
-    </div>
-  </div>
-</div>
-<div class="step" id="step7">
-  <button onclick="toggle(7)">
-    <span class="num">7</span>
-    <span>Production Deploy (AKS)</span>
-    <span class="arrow">&rsaquo;</span>
-  </button>
-  <div class="body">
-    <p style="color:var(--muted);margin:6px 0 0">Apply a Deployment + LoadBalancer to Azure Kubernetes Service, wait for the external IP and smoke-test production.</p>
-    <div class="kv">
-      <span class="key">Files / modules</span><span><code class='inline'>mlops/deploy_aks.py</code></span>
-      <span class="key">Command</span><span><code class="inline">python mlops/deploy_aks.py --tag latest</code></span>
-      <span class="key">Inputs</span><span>ACR image</span>
-      <span class="key">Outputs</span><span>Live AKS service + smoke-test result</span>
-      <span class="key">Azure</span><span>Azure Kubernetes Service</span>
-      <span class="key">Next step</span><span><b style="color:var(--blue)">Monitoring & Drift</b></span>
-    </div>
-  </div>
-</div>
-<div class="step" id="step8">
-  <button onclick="toggle(8)">
-    <span class="num">8</span>
-    <span>Monitoring & Drift</span>
-    <span class="arrow">&rsaquo;</span>
-  </button>
-  <div class="body">
-    <p style="color:var(--muted);margin:6px 0 0">Ship telemetry to Application Insights / Azure Monitor and run Evidently drift detection to produce an HTML report.</p>
-    <div class="kv">
-      <span class="key">Files / modules</span><span><code class='inline'>app/main.py</code>, <code class='inline'>mlops/drift_detection.py</code></span>
-      <span class="key">Command</span><span><code class="inline">python mlops/drift_detection.py --simulate</code></span>
-      <span class="key">Inputs</span><span>data/reference/reference.csv, current data</span>
-      <span class="key">Outputs</span><span>reports/drift_report.html, reports/drift_summary.json</span>
-      <span class="key">Azure</span><span>Application Insights, Azure Monitor</span>
-      <span class="key">Next step</span><span><b style="color:var(--blue)">AI Report</b></span>
-    </div>
-  </div>
-</div>
-<div class="step" id="step9">
-  <button onclick="toggle(9)">
-    <span class="num">9</span>
-    <span>OpenRouter AI Report</span>
-    <span class="arrow">&rsaquo;</span>
-  </button>
-  <div class="body">
-    <p style="color:var(--muted);margin:6px 0 0">Summarise metrics, quality gate, drift and deployment via an OpenRouter LLM. Falls back to a deterministic local report without a key.</p>
-    <div class="kv">
-      <span class="key">Files / modules</span><span><code class='inline'>mlops/openrouter_report.py</code></span>
-      <span class="key">Command</span><span><code class="inline">python mlops/openrouter_report.py</code></span>
-      <span class="key">Inputs</span><span>reports/*.json</span>
-      <span class="key">Outputs</span><span>reports/ai_report.md</span>
-      <span class="key">Azure</span><span>OpenRouter API (external)</span>
-      <span class="key">Next step</span><span><b style="color:var(--blue)">Done</b></span>
-    </div>
-  </div>
-</div>
-
-<footer>Run the whole thing locally with no Azure account &mdash; every Azure step skips gracefully.</footer>
-
-<script>
-function toggle(n) { document.getElementById('step'+n).classList.toggle('open'); }
-function expandAll() { document.querySelectorAll('.step').forEach(s=>s.classList.add('open')); }
-function collapseAll() { document.querySelectorAll('.step').forEach(s=>s.classList.remove('open')); }
-document.getElementById('step1').classList.add('open');
-</script>
-</div>
-</body>
-</html>
+.card .k{color:var(--muted); font-size:.78rem; text-transform:uppercase; letter-spacing:.06em;}
+.card .v{font-size:1.55rem; font-weight:800; margin-top:4px;}
+.card .sub{color:var(--muted); font-size:.82rem; margin-top:4px;}
+.stage{display:flex; flex-direction:column; gap:10px;}
+.stage .top{display:flex; align-items:center; justify-content:space-between;}
+.stage .name{font-weight:700; font-size:.96rem;}
+.stage .idx{color:var(--muted); font-size:.72rem;}
+.dotpill{display:inline-flex; align-items:center; gap:7px; font-size:.76rem; color:var(--muted);}
+.dotpill::before{content:""; width:9px; height:9px; border-radius:50%; background:var(--muted);}
+.dotpill.ok::before{background:var(--green); box-shadow:0 0 10px var(--green);}
+.dotpill.ready::before{background:var(--blue); box-shadow:0 0 10px var(--blue);}
+.dotpill.skip::before{background:var(--amber); box-shadow:0 0 8px var(--amber);}
+.dotpill.off::before{background:var(--red); box-shadow:0 0 8px var(--red);}
+.linkrow{display:flex; flex-wrap:wrap; gap:10px;}
+.btn{display:inline-flex; align-items:center; gap:7px; padding:9px 15px; border-radius:11px; font-size:.9rem; cursor:pointer;
+  border:1px solid var(--line); background:var(--glass2); color:var(--text); transition:.15s;}
+.btn:hover{text-decoration:none; border-color:var(--blue); transform:translateY(-1px);}
+.btn.primary{background:linear-gradient(90deg,var(--blue),var(--purple)); border:none; color:#fff; font-weight:700;}
+.btn.primary:hover{filter:brightness(1.1);}
+.btn.ghost{background:transparent;}
+.btn:disabled{opacity:.4; cursor:not-allowed; transform:none;}
+label.slabel{display:flex; justify-content:space-between; font-size:.85rem; color:var(--muted); margin:14px 0 5px;}
+label.slabel b{color:var(--text);}
+input[type=range]{width:100%; accent-color:var(--purple); height:6px;}
+.result{text-align:center; padding:6px 0 2px;}
+.result .cls{font-size:1.9rem; font-weight:900; text-transform:capitalize;
+  background:linear-gradient(90deg,var(--blue),var(--purple)); -webkit-background-clip:text; background-clip:text; color:transparent;}
+.barrow{margin:10px 0;}
+.barrow .lab{display:flex; justify-content:space-between; font-size:.82rem; color:var(--muted); margin-bottom:5px; text-transform:capitalize;}
+.bar{height:12px; border-radius:999px; background:rgba(10,16,32,.8); overflow:hidden; border:1px solid var(--line);}
+.bar>span{display:block; height:100%; width:0%; transition:width .55s cubic-bezier(.2,.8,.2,1); background:linear-gradient(90deg,var(--blue),var(--purple));}
+.bar.win>span{background:linear-gradient(90deg,var(--green),#10b981);}
+pre{background:rgba(4,8,20,.85); border:1px solid var(--line); border-radius:12px; padding:13px 15px; overflow-x:auto; margin:0;
+  font-family:"SFMono-Regular",Consolas,Menlo,monospace; font-size:.84rem; color:#cbd5e1;}
+code.inline{background:var(--glass2); padding:1px 6px; border-radius:6px; font-size:.85em;}
+footer{color:var(--muted); font-size:.82rem; border-top:1px solid var(--line); margin-top:42px; padding-top:18px;}
+/* demo tour */
+.toolbar{display:flex; align-items:center; gap:10px; flex-wrap:wrap; margin-bottom:16px;}
+.toolbar .count{margin-left:auto; color:var(--muted); font-size:.86rem;}
+.toolbar .count b{color:var(--text);}
+.filters{display:flex; flex-wrap:wrap; gap:8px; margin-bottom:16px;}
+.filter{padding:7px 13px; border-radius:999px; font-size:.83rem; cursor:pointer; color:var(--muted);
+  border:1px solid var(--line); background:var(--glass2);}
+.filter:hover{color:var(--text);}
+.filter.active{color:#fff; background:linear-gradient(90deg,rgba(79,140,255,.3),rgba(163,104,255,.3)); border-color:var(--blue);}
+.stepgrid{display:grid; grid-template-columns:repeat(auto-fill,minmax(150px,1fr)); gap:12px;}
+.scard{cursor:pointer; border:1px solid var(--line); border-radius:14px; padding:13px 14px; background:var(--glass);
+  transition:.15s; position:relative; overflow:hidden;}
+.scard:hover{transform:translateY(-2px); border-color:var(--blue);}
+.scard.active{border-color:var(--purple); box-shadow:0 0 0 1px var(--purple), 0 10px 26px rgba(120,60,210,.25);}
+.scard .n{font-size:.74rem; color:var(--muted);}
+.scard .t{font-weight:700; margin-top:3px;}
+.scard .c{margin-top:8px; font-size:.7rem; color:var(--muted); text-transform:uppercase; letter-spacing:.05em;}
+.scard.hidden{display:none;}
+.detail{margin-top:16px; border:1px solid var(--line); border-radius:16px; padding:20px 22px; background:var(--glass);}
+.detail h3{margin:0; font-size:1.3rem; display:flex; align-items:center; gap:10px;}
+.detail .livebadge{font-size:.66rem; letter-spacing:.1em; padding:3px 8px; border-radius:999px; background:rgba(6,40,27,.7);
+  border:1px solid rgba(52,211,153,.5); color:#6ee7b7;}
+.detail .livebadge::before{content:""; display:inline-block; width:6px;height:6px;border-radius:50%;background:var(--green);margin-right:5px;box-shadow:0 0 8px var(--green);}
+.detail .tags{display:flex; flex-wrap:wrap; gap:6px; margin:12px 0;}
+.detail .tag{font-size:.74rem; padding:3px 9px; border-radius:999px; background:var(--glass2); border:1px solid var(--line); color:var(--muted);}
+.detail ul{margin:10px 0 14px; padding-left:18px; color:var(--muted);}
+.detail ul li{margin-bottom:5px;}
+/* architecture */
+.archscroll{overflow-x:auto; border:1px solid var(--line); border-radius:18px; background:
+  linear-gradient(180deg, rgba(10,16,34,.7), rgba(6,10,22,.85)); padding:8px;}
+.archcanvas{position:relative;}
+.lane{position:absolute; left:0; right:0; border:1px dashed rgba(86,113,168,.22); border-radius:14px;}
+.lane .lanelabel{position:absolute; top:8px; left:12px; font-size:.7rem; text-transform:uppercase; letter-spacing:.14em; color:var(--muted);}
+.node{position:absolute; border-radius:13px; padding:8px 10px; background:var(--glass); border:1px solid var(--line);
+  box-shadow:0 8px 22px rgba(0,0,0,.3); display:flex; flex-direction:column; justify-content:center;}
+.node .nl{font-weight:700; font-size:.84rem; line-height:1.15;}
+.node .ns{font-size:.68rem; color:var(--muted); margin-top:2px;}
+.legend{display:flex; flex-wrap:wrap; gap:16px; margin-top:14px;}
+.legend .li{display:flex; align-items:center; gap:7px; font-size:.82rem; color:var(--muted);}
+.legend .sw{width:14px;height:14px;border-radius:4px;}
+/* flow explorer */
+.flowlayout{display:grid; grid-template-columns:300px 1fr; gap:18px;}
+@media(max-width:820px){.flowlayout{grid-template-columns:1fr;}}
+.progress{height:8px; border-radius:999px; background:rgba(10,16,32,.8); border:1px solid var(--line); overflow:hidden; margin-bottom:14px;}
+.progress>span{display:block; height:100%; width:4%; background:linear-gradient(90deg,var(--blue),var(--purple)); transition:width .35s ease;}
+.timeline{max-height:560px; overflow-y:auto; border:1px solid var(--line); border-radius:14px; padding:8px; background:var(--glass);}
+.tline{display:flex; gap:10px; align-items:center; padding:9px 10px; border-radius:10px; cursor:pointer; color:var(--muted); font-size:.86rem;}
+.tline:hover{background:var(--glass2); color:var(--text);}
+.tline.active{background:linear-gradient(90deg,rgba(79,140,255,.22),rgba(163,104,255,.18)); color:#fff;}
+.tline .tn{flex:0 0 auto; width:26px; height:26px; border-radius:8px; display:grid; place-items:center; font-size:.74rem; font-weight:700;
+  background:linear-gradient(135deg,var(--blue),var(--purple)); color:#fff;}
+.tline.done .tn{background:linear-gradient(135deg,var(--green),#10b981);}
+.kv{display:grid; grid-template-columns:140px 1fr; gap:8px 14px; margin-top:12px; font-size:.9rem;}
+.kv .key{color:var(--muted);}
+.chiprow{display:flex; flex-wrap:wrap; gap:6px;}
+.chip{font-size:.74rem; padding:3px 9px; border-radius:999px; background:var(--glass2); border:1px solid var(--line); color:var(--muted);}
+</style></head><body><nav class="nav"><div class="brand">Iris MLOps<span class="dot">.</span></div><div class="links"><a href="/">Dashboard</a><a href="/demo">Demo</a><a href="/demo/flow" class="active">Flow Explorer</a><a href="/docs">Swagger</a><a href="/health">Health</a></div></nav><div class="wrap"><div class="hero"><h1>Flow Explorer</h1><p>Every pipeline action, line by line. Click a step or use the controls to walk through what happens, the files involved, inputs/outputs, environment variables, Azure resources, the command, and how it connects forward.</p></div><div class="toolbar"><button class="btn" id="prevBtn" onclick="move(-1)">&larr; Previous</button><button class="btn primary" id="nextBtn" onclick="move(1)">Next line &rarr;</button><button class="btn ghost" onclick="resetFlow()">Reset</button><span class="count">Line <b id="lineNo">1</b> of <b>24</b></span></div><div class="progress"><span id="prog"></span></div><div class="flowlayout"><div class="timeline" id="timeline"><div class="tline" data-n="1" onclick="selectLine(1)"><span class="tn">1</span><span>Clone & virtual environment</span></div><div class="tline" data-n="2" onclick="selectLine(2)"><span class="tn">2</span><span>Install dependencies</span></div><div class="tline" data-n="3" onclick="selectLine(3)"><span class="tn">3</span><span>Load Iris dataset</span></div><div class="tline" data-n="4" onclick="selectLine(4)"><span class="tn">4</span><span>Compute dataset hash</span></div><div class="tline" data-n="5" onclick="selectLine(5)"><span class="tn">5</span><span>Save raw dataset</span></div><div class="tline" data-n="6" onclick="selectLine(6)"><span class="tn">6</span><span>Save reference dataset</span></div><div class="tline" data-n="7" onclick="selectLine(7)"><span class="tn">7</span><span>Write metadata JSON</span></div><div class="tline" data-n="8" onclick="selectLine(8)"><span class="tn">8</span><span>Upload to Azure Blob</span></div><div class="tline" data-n="9" onclick="selectLine(9)"><span class="tn">9</span><span>Train/test split</span></div><div class="tline" data-n="10" onclick="selectLine(10)"><span class="tn">10</span><span>Fit RandomForest</span></div><div class="tline" data-n="11" onclick="selectLine(11)"><span class="tn">11</span><span>Compute metrics</span></div><div class="tline" data-n="12" onclick="selectLine(12)"><span class="tn">12</span><span>Save model.joblib</span></div><div class="tline" data-n="13" onclick="selectLine(13)"><span class="tn">13</span><span>Save confusion matrix</span></div><div class="tline" data-n="14" onclick="selectLine(14)"><span class="tn">14</span><span>Log to MLflow</span></div><div class="tline" data-n="15" onclick="selectLine(15)"><span class="tn">15</span><span>Quality gate</span></div><div class="tline" data-n="16" onclick="selectLine(16)"><span class="tn">16</span><span>Build governance tags</span></div><div class="tline" data-n="17" onclick="selectLine(17)"><span class="tn">17</span><span>Register model in Azure ML</span></div><div class="tline" data-n="18" onclick="selectLine(18)"><span class="tn">18</span><span>Build Docker image</span></div><div class="tline" data-n="19" onclick="selectLine(19)"><span class="tn">19</span><span>Push image to ACR</span></div><div class="tline" data-n="20" onclick="selectLine(20)"><span class="tn">20</span><span>Deploy ACI staging</span></div><div class="tline" data-n="21" onclick="selectLine(21)"><span class="tn">21</span><span>Deploy AKS production</span></div><div class="tline" data-n="22" onclick="selectLine(22)"><span class="tn">22</span><span>Serve predictions</span></div><div class="tline" data-n="23" onclick="selectLine(23)"><span class="tn">23</span><span>Drift detection</span></div><div class="tline" data-n="24" onclick="selectLine(24)"><span class="tn">24</span><span>OpenRouter AI report</span></div></div><div class="detail" id="detail"></div></div><footer>Run the whole thing locally with no Azure account &mdash; every Azure step skips gracefully.</footer><script type="application/json" id="flowData">[{"n": 1, "title": "Clone & virtual environment", "what": "Clone the repo and create an isolated Python 3.11+ virtual environment.", "files": ["README.md"], "inp": "GitHub repository", "out": ".venv interpreter", "env": [], "azure": "None", "command": "python -m venv .venv", "nxt": "Install dependencies"}, {"n": 2, "title": "Install dependencies", "what": "Install runtime + dev dependencies (tests, linting, coverage).", "files": ["requirements-dev.txt"], "inp": "requirements files", "out": "installed packages", "env": [], "azure": "None", "command": "pip install -r requirements-dev.txt", "nxt": "Load Iris dataset"}, {"n": 3, "title": "Load Iris dataset", "what": "Load Iris into a tidy snake_case DataFrame with a readable species column.", "files": ["mlops/ingest_data.py"], "inp": "sklearn.datasets.load_iris", "out": "in-memory DataFrame", "env": [], "azure": "None", "command": "python mlops/ingest_data.py --no-upload", "nxt": "Compute dataset hash"}, {"n": 4, "title": "Compute dataset hash", "what": "Hash a canonical CSV serialisation with SHA-256 for reproducible lineage.", "files": ["mlops/ingest_data.py"], "inp": "DataFrame", "out": "dataset_hash (hex)", "env": [], "azure": "None", "command": "python mlops/ingest_data.py --no-upload", "nxt": "Save raw dataset"}, {"n": 5, "title": "Save raw dataset", "what": "Persist the raw dataset CSV used for training.", "files": ["mlops/ingest_data.py"], "inp": "DataFrame", "out": "data/raw/iris.csv", "env": [], "azure": "None", "command": "python mlops/ingest_data.py --no-upload", "nxt": "Save reference dataset"}, {"n": 6, "title": "Save reference dataset", "what": "Freeze a reference snapshot representing the training distribution for drift checks.", "files": ["mlops/ingest_data.py"], "inp": "DataFrame", "out": "data/reference/reference.csv", "env": [], "azure": "None", "command": "python mlops/ingest_data.py --no-upload", "nxt": "Write metadata JSON"}, {"n": 7, "title": "Write metadata JSON", "what": "Record rows, features, classes, hash and timestamp as a sidecar.", "files": ["mlops/ingest_data.py"], "inp": "DataFrame + hash", "out": "data/raw/metadata.json", "env": [], "azure": "None", "command": "python mlops/ingest_data.py --no-upload", "nxt": "Upload to Blob"}, {"n": 8, "title": "Upload to Azure Blob", "what": "Upload datasets to Blob Storage when configured; skip cleanly otherwise.", "files": ["mlops/ingest_data.py", "mlops/azure_clients.py"], "inp": "local CSVs", "out": "blobs in container", "env": ["AZURE_STORAGE_ACCOUNT", "AZURE_STORAGE_CONTAINER"], "azure": "Azure Blob Storage", "command": "python mlops/ingest_data.py", "nxt": "Train/test split"}, {"n": 9, "title": "Train/test split", "what": "Stratified split keeping class balance across train and test sets.", "files": ["mlops/train.py"], "inp": "data/raw/iris.csv", "out": "X_train/X_test/y_train/y_test", "env": [], "azure": "None", "command": "python mlops/train.py", "nxt": "Fit RandomForest"}, {"n": 10, "title": "Fit RandomForest", "what": "Train a RandomForestClassifier on NumPy arrays (warning-free serving).", "files": ["mlops/train.py"], "inp": "training arrays", "out": "fitted estimator", "env": [], "azure": "None", "command": "python mlops/train.py --max-depth 3", "nxt": "Compute metrics"}, {"n": 11, "title": "Compute metrics", "what": "Accuracy, macro precision/recall/F1 on the held-out test set.", "files": ["mlops/train.py"], "inp": "y_test, predictions", "out": "metrics dict", "env": [], "azure": "None", "command": "python mlops/train.py", "nxt": "Save model.joblib"}, {"n": 12, "title": "Save model.joblib", "what": "Serialise the trained model for serving and registration.", "files": ["mlops/train.py"], "inp": "fitted estimator", "out": "models/model.joblib", "env": ["MODEL_PATH"], "azure": "None", "command": "python mlops/train.py", "nxt": "Save confusion matrix"}, {"n": 13, "title": "Save confusion matrix", "what": "Render and save a confusion-matrix figure for review.", "files": ["mlops/train.py"], "inp": "y_test, predictions", "out": "reports/confusion_matrix.png", "env": [], "azure": "None", "command": "python mlops/train.py", "nxt": "Log to MLflow"}, {"n": 14, "title": "Log to MLflow", "what": "Track params, metrics and artifacts as an MLflow run.", "files": ["mlops/train.py"], "inp": "params, metrics, artifacts", "out": "mlruns/ experiment run", "env": ["MLFLOW_TRACKING_URI", "MLFLOW_EXPERIMENT_NAME"], "azure": "MLflow (file or Azure ML)", "command": "mlflow ui --backend-store-uri ./mlruns", "nxt": "Quality gate"}, {"n": 15, "title": "Quality gate", "what": "Compare accuracy to the threshold; exit non-zero on failure to halt CI/CD.", "files": ["mlops/evaluate.py"], "inp": "reports/metrics.json", "out": "reports/quality_gate.json + exit code", "env": ["ACCURACY_THRESHOLD", "DEMO_FAIL"], "azure": "None", "command": "python mlops/evaluate.py", "nxt": "Build governance tags"}, {"n": 16, "title": "Build governance tags", "what": "Assemble accuracy, dataset_hash, git_sha, created_by, project_name, version.", "files": ["mlops/register_model.py"], "inp": "metrics + git", "out": "tag dictionary", "env": ["GIT_SHA", "PROJECT_NAME", "CREATED_BY"], "azure": "None", "command": "python mlops/register_model.py", "nxt": "Register model"}, {"n": 17, "title": "Register model in Azure ML", "what": "Create or update a versioned registry entry with governance tags.", "files": ["mlops/register_model.py", "mlops/azure_clients.py"], "inp": "models/model.joblib + tags", "out": "registered model version", "env": ["AZURE_SUBSCRIPTION_ID", "AZURE_RESOURCE_GROUP", "AZURE_WORKSPACE_NAME"], "azure": "Azure Machine Learning", "command": "python mlops/register_model.py", "nxt": "Build Docker image"}, {"n": 18, "title": "Build Docker image", "what": "Build the lean FastAPI serving image and tag with git SHA + latest.", "files": ["Dockerfile", "mlops/build_container.py"], "inp": "app/ + model", "out": "local Docker image", "env": ["AZURE_ACR_NAME"], "azure": "None (build)", "command": "python mlops/build_container.py --no-push", "nxt": "Push to ACR"}, {"n": 19, "title": "Push image to ACR", "what": "Authenticate to ACR and push all image tags.", "files": ["mlops/build_container.py"], "inp": "local image", "out": "image in ACR", "env": ["AZURE_ACR_NAME"], "azure": "Azure Container Registry", "command": "python mlops/build_container.py", "nxt": "Deploy ACI staging"}, {"n": 20, "title": "Deploy ACI staging", "what": "Deploy to Azure Container Instances and smoke-test the endpoint.", "files": ["mlops/deploy_aci.py"], "inp": "ACR image", "out": "running ACI + smoke result", "env": ["AZURE_RESOURCE_GROUP", "AZURE_ACR_NAME", "AZURE_ACI_NAME"], "azure": "Azure Container Instances", "command": "python mlops/deploy_aci.py --tag latest", "nxt": "Deploy AKS production"}, {"n": 21, "title": "Deploy AKS production", "what": "Apply Deployment + LoadBalancer to AKS, await external IP, smoke-test.", "files": ["mlops/deploy_aks.py"], "inp": "ACR image", "out": "live AKS service", "env": ["AZURE_AKS_CLUSTER", "AZURE_RESOURCE_GROUP"], "azure": "Azure Kubernetes Service", "command": "python mlops/deploy_aks.py --tag latest", "nxt": "Serve predictions"}, {"n": 22, "title": "Serve predictions", "what": "FastAPI serves /predict and the dashboard; logs ship to App Insights when set.", "files": ["app/main.py", "app/inference.py"], "inp": "feature payload", "out": "prediction + probabilities", "env": ["APPINSIGHTS_CONNECTION_STRING", "MODEL_PATH"], "azure": "Application Insights", "command": "curl -X POST localhost:8000/predict -d '{...}'", "nxt": "Drift detection"}, {"n": 23, "title": "Drift detection", "what": "Compare current vs reference data; publish an HTML drift report + summary.", "files": ["mlops/drift_detection.py"], "inp": "reference + current data", "out": "reports/drift_report.html", "env": ["SIMULATE_DRIFT"], "azure": "Azure Monitor (optional)", "command": "python mlops/drift_detection.py --simulate", "nxt": "OpenRouter report"}, {"n": 24, "title": "OpenRouter AI report", "what": "Summarise the run via an LLM with a deterministic local fallback.", "files": ["mlops/openrouter_report.py"], "inp": "reports/*.json", "out": "reports/ai_report.md", "env": ["OPENROUTER_API_KEY", "OPENROUTER_MODEL"], "azure": "OpenRouter (external)", "command": "python mlops/openrouter_report.py", "nxt": "Pipeline complete"}]</script><script>const LINES=JSON.parse(document.getElementById("flowData").textContent);let cur=1;function esc(s){return String(s);}function render(){  const l=LINES.find(x=>x.n===cur);  document.getElementById("lineNo").textContent=cur;  document.getElementById("prog").style.width=((cur/LINES.length)*100)+"%";  document.querySelectorAll(".tline").forEach(t=>{    const n=+t.dataset.n; t.classList.toggle("active",n===cur); t.classList.toggle("done",n<cur);  });  const files=l.files.map(f=>`<span class="chip">${f}</span>`).join(" ");  const envs=(l.env&&l.env.length)?l.env.map(e=>`<span class="chip">${e}</span>`).join(" "):"<span style=\"color:var(--muted)\">none</span>";  document.getElementById("detail").innerHTML=    `<h3>${l.n}. ${l.title}<span class="livebadge">LIVE</span></h3>`+    `<p style="color:var(--muted)">${l.what}</p>`+    `<div class="kv">`+    `<span class="key">Files / modules</span><span class="chiprow">${files}</span>`+    `<span class="key">Input</span><span>${esc(l.inp)}</span>`+    `<span class="key">Output</span><span>${esc(l.out)}</span>`+    `<span class="key">Env vars</span><span class="chiprow">${envs}</span>`+    `<span class="key">Azure</span><span>${esc(l.azure)}</span>`+    `<span class="key">Next step</span><span style="color:var(--blue)"><b>${esc(l.nxt)}</b></span>`+    `</div>`+`<div style="margin-top:12px" class="key">Command</div><pre>${l.command}</pre>`;  const active=document.querySelector(".tline.active");  if(active) active.scrollIntoView({block:"nearest",behavior:"smooth"});}function selectLine(n){cur=n; render();}function move(d){const nx=cur+d; if(nx>=1&&nx<=LINES.length){cur=nx; render();}}function resetFlow(){cur=1; render();}render();</script></div></body></html>

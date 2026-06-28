@@ -122,19 +122,31 @@ class ModelService:
 
         label = int(model.predict(sample)[0])
 
-        # Derive a confidence score. Prefer calibrated probabilities when the
-        # estimator exposes them; otherwise fall back to a neutral 1.0.
+        # Derive a confidence score and per-class probabilities. Prefer the
+        # estimator's calibrated probabilities; otherwise fall back to a neutral
+        # one-hot distribution on the predicted label.
+        probabilities: Dict[str, float] = {}
         if hasattr(model, "predict_proba"):
             proba = model.predict_proba(sample)[0]
             confidence = float(np.max(proba))
+            # Map probabilities onto the model's known class order.
+            for cls_index, prob in zip(getattr(model, "classes_", range(len(proba))), proba):
+                idx = int(cls_index)
+                name = CLASS_NAMES[idx] if 0 <= idx < len(CLASS_NAMES) else str(idx)
+                probabilities[name] = round(float(prob), 6)
         else:
             confidence = 1.0
 
         class_name = CLASS_NAMES[label] if 0 <= label < len(CLASS_NAMES) else str(label)
+        if not probabilities:
+            # Ensure every class is represented even without predict_proba.
+            probabilities = {name: (1.0 if name == class_name else 0.0) for name in CLASS_NAMES}
+
         return {
             "prediction": label,
             "class": class_name,
             "confidence": round(confidence, 6),
+            "probabilities": probabilities,
         }
 
 

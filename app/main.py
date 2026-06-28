@@ -159,6 +159,7 @@ def predict(
         prediction=result["prediction"],
         class_name=result["class"],
         confidence=result["confidence"],
+        probabilities=result.get("probabilities"),
     )
 
 

@@ -8,7 +8,7 @@ Purpose: Pydantic request/response schemas for the Iris classification API.
 
 from __future__ import annotations
 
-from typing import List
+from typing import Dict, List, Optional
 
 from pydantic import BaseModel, Field
 
@@ -57,6 +57,13 @@ class PredictionResponse(BaseModel):
     prediction: int = Field(..., description="Predicted integer class label", examples=[0])
     class_name: str = Field(..., alias="class", description="Predicted class name", examples=["setosa"])
     confidence: float = Field(..., ge=0, le=1, description="Model confidence (0-1)", examples=[0.99])
+    # Optional per-class probabilities. Additive field used by the dashboard to
+    # render confidence bars; omitted (None) leaves the legacy contract intact.
+    probabilities: Optional[Dict[str, float]] = Field(
+        default=None,
+        description="Per-class probabilities keyed by class name",
+        examples=[{"setosa": 0.99, "versicolor": 0.01, "virginica": 0.0}],
+    )
 
     # ``populate_by_name`` lets us build the object using ``class_name=...`` in
     # Python while still serialising the field as ``class`` in JSON responses.

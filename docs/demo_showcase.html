@@ -1,181 +1,148 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="utf-8"/>
-  <meta name="viewport" content="width=device-width, initial-scale=1"/>
-  <title>MLOps Architecture</title>
-  <style>
-:root {
-  --bg0:#070b16; --bg1:#0f1830; --panel:#121c34; --panel2:#1a2848;
-  --text:#e6edf7; --muted:#93a4c4; --line:#23314f;
-  --blue:#4f8cff; --purple:#a368ff; --green:#34d399; --amber:#fbbf24; --red:#f87171;
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"/><meta name="viewport" content="width=device-width, initial-scale=1"/><title>Azure MLOps Interactive Demo</title><style>
+:root{
+  --bg0:#05070f; --bg1:#0b1226; --bg2:#0e1730;
+  --glass:rgba(20,30,56,.55); --glass2:rgba(28,40,72,.5);
+  --text:#e8eefc; --muted:#94a6c9; --line:rgba(86,113,168,.32);
+  --blue:#4f8cff; --purple:#a368ff; --green:#34d399; --amber:#fbbf24; --red:#f87171; --cyan:#38e1ff;
 }
-* { box-sizing:border-box; }
-body {
+*{box-sizing:border-box;}
+html{scroll-behavior:smooth;}
+body{
   margin:0; min-height:100vh; color:var(--text);
   font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
   background:
-    radial-gradient(1100px 600px at 12% -8%, #1b2c54 0%, transparent 55%),
-    radial-gradient(900px 500px at 100% 0%, #2a1a4d 0%, transparent 50%),
-    linear-gradient(180deg, var(--bg1) 0%, var(--bg0) 100%);
-  background-attachment:fixed; line-height:1.55;
+    radial-gradient(1200px 700px at 10% -12%, rgba(46,86,170,.30) 0%, transparent 55%),
+    radial-gradient(1000px 620px at 100% -6%, rgba(120,60,210,.26) 0%, transparent 52%),
+    radial-gradient(900px 600px at 50% 120%, rgba(40,120,180,.18) 0%, transparent 60%),
+    linear-gradient(180deg,var(--bg1) 0%, var(--bg0) 100%);
+  background-attachment:fixed; line-height:1.55; letter-spacing:.1px;
 }
-a { color:var(--blue); text-decoration:none; }
-a:hover { text-decoration:underline; }
-.nav {
-  position:sticky; top:0; z-index:10; backdrop-filter:blur(10px);
-  background:rgba(7,11,22,.7); border-bottom:1px solid var(--line);
-  display:flex; align-items:center; gap:18px; padding:12px 24px;
+a{color:var(--blue); text-decoration:none;}
+a:hover{text-decoration:underline;}
+.nav{
+  position:sticky; top:0; z-index:30; backdrop-filter:blur(14px);
+  background:rgba(5,7,15,.72); border-bottom:1px solid var(--line);
+  display:flex; align-items:center; gap:16px; padding:12px 22px;
 }
-.nav .brand { font-weight:700; letter-spacing:-.01em; }
-.nav .brand .dot { color:var(--purple); }
-.nav .links { display:flex; gap:6px; margin-left:auto; flex-wrap:wrap; }
-.nav .links a {
-  color:var(--muted); padding:6px 12px; border-radius:8px; font-size:.9rem;
-  border:1px solid transparent;
+.nav .brand{font-weight:800; letter-spacing:-.01em;}
+.nav .brand .dot{color:var(--purple);}
+.nav .links{display:flex; gap:6px; margin-left:auto; flex-wrap:wrap;}
+.nav .links a{color:var(--muted); padding:7px 13px; border-radius:10px; font-size:.9rem; border:1px solid transparent;}
+.nav .links a:hover{color:var(--text); text-decoration:none; background:var(--glass2);}
+.nav .links a.active{color:#fff; border-color:var(--line); background:linear-gradient(90deg,rgba(79,140,255,.22),rgba(163,104,255,.22));}
+.wrap{max-width:1180px; margin:0 auto; padding:30px 22px 80px;}
+.hero h1{font-size:2.15rem; margin:0 0 6px; letter-spacing:-.02em;
+  background:linear-gradient(90deg,#fff 0%, #c9d8ff 60%, #c4b5fd 100%); -webkit-background-clip:text; background-clip:text; color:transparent;}
+.hero p{color:var(--muted); margin:0 0 16px; max-width:760px;}
+.badges{display:flex; flex-wrap:wrap; gap:8px; margin-bottom:24px;}
+.badge{font-size:.78rem; padding:5px 12px; border-radius:999px; background:var(--glass2); border:1px solid var(--line); color:var(--text);}
+.badge.green{border-color:rgba(52,211,153,.5); background:rgba(6,40,27,.6); color:#6ee7b7; box-shadow:0 0 0 1px rgba(52,211,153,.15) inset;}
+.badge.blue{border-color:rgba(79,140,255,.5); background:rgba(10,33,66,.6); color:#93c5fd;}
+.badge.purple{border-color:rgba(163,104,255,.5); background:rgba(28,17,58,.6); color:#c4b5fd;}
+.badge.amber{border-color:rgba(251,191,36,.45); background:rgba(44,33,7,.6); color:#fcd34d;}
+.badge.red{border-color:rgba(248,113,113,.5); background:rgba(44,13,13,.6); color:#fca5a5;}
+.badge .live{width:7px;height:7px;border-radius:50%;background:var(--green);display:inline-block;margin-right:6px;box-shadow:0 0 8px var(--green);vertical-align:middle;}
+h2.section{font-size:.95rem; text-transform:uppercase; letter-spacing:.12em; color:var(--muted); margin:34px 0 14px;}
+.grid{display:grid; gap:14px;}
+.g6{grid-template-columns:repeat(auto-fit,minmax(155px,1fr));}
+.g4{grid-template-columns:repeat(auto-fit,minmax(200px,1fr));}
+.g3{grid-template-columns:repeat(auto-fit,minmax(240px,1fr));}
+.g2{grid-template-columns:repeat(auto-fit,minmax(320px,1fr));}
+.card{
+  background:var(--glass); backdrop-filter:blur(10px);
+  border:1px solid var(--line); border-radius:16px; padding:16px 18px;
+  box-shadow:0 10px 30px rgba(0,0,0,.28);
 }
-.nav .links a:hover { color:var(--text); text-decoration:none; background:var(--panel2); }
-.nav .links a.active { color:var(--text); border-color:var(--line); background:var(--panel); }
-.wrap { max-width:1080px; margin:0 auto; padding:32px 24px 80px; }
-.hero h1 { font-size:2.05rem; margin:0 0 6px; letter-spacing:-.02em; }
-.hero p { color:var(--muted); margin:0 0 16px; max-width:720px; }
-.badges { display:flex; flex-wrap:wrap; gap:8px; margin-bottom:26px; }
-.badge {
-  font-size:.78rem; padding:4px 11px; border-radius:999px;
-  background:var(--panel2); border:1px solid var(--line); color:var(--text);
-}
-.badge.green { border-color:#14532d; background:#06281b; color:#6ee7b7; }
-.badge.blue  { border-color:#13335f; background:#0a2142; color:#93c5fd; }
-.badge.purple{ border-color:#3b1f63; background:#1c113a; color:#c4b5fd; }
-.badge.amber { border-color:#5a4410; background:#2c2107; color:#fcd34d; }
-.badge.red   { border-color:#5b1d1d; background:#2c0d0d; color:#fca5a5; }
-h2.section { font-size:1.05rem; text-transform:uppercase; letter-spacing:.08em; color:var(--muted); margin:34px 0 14px; }
-.grid { display:grid; gap:14px; }
-.g6 { grid-template-columns:repeat(auto-fit,minmax(150px,1fr)); }
-.g4 { grid-template-columns:repeat(auto-fit,minmax(210px,1fr)); }
-.g3 { grid-template-columns:repeat(auto-fit,minmax(240px,1fr)); }
-.g2 { grid-template-columns:repeat(auto-fit,minmax(320px,1fr)); }
-.card {
-  background:linear-gradient(180deg,var(--panel) 0%, #0e1730 100%);
-  border:1px solid var(--line); border-radius:14px; padding:16px 18px;
-}
-.card .k { color:var(--muted); font-size:.8rem; text-transform:uppercase; letter-spacing:.05em; }
-.card .v { font-size:1.5rem; font-weight:700; margin-top:4px; }
-.card .sub { color:var(--muted); font-size:.82rem; margin-top:4px; }
-.stage { display:flex; flex-direction:column; gap:8px; }
-.stage .top { display:flex; align-items:center; justify-content:space-between; }
-.stage .name { font-weight:600; }
-.dotpill { display:inline-flex; align-items:center; gap:6px; font-size:.76rem; color:var(--muted); }
-.dotpill::before { content:""; width:9px; height:9px; border-radius:50%; background:var(--muted); }
-.dotpill.ok::before { background:var(--green); box-shadow:0 0 10px var(--green); }
-.dotpill.ready::before { background:var(--blue); box-shadow:0 0 10px var(--blue); }
-.dotpill.skip::before { background:var(--amber); }
-.dotpill.off::before { background:var(--red); }
-.linkrow { display:flex; flex-wrap:wrap; gap:10px; }
-.btn {
-  display:inline-block; padding:9px 14px; border-radius:10px; font-size:.9rem; cursor:pointer;
-  border:1px solid var(--line); background:var(--panel2); color:var(--text);
-}
-.btn:hover { text-decoration:none; border-color:var(--blue); }
-.btn.primary { background:linear-gradient(90deg,var(--blue),var(--purple)); border:none; color:#fff; font-weight:600; }
-.btn.primary:hover { filter:brightness(1.08); }
-label.slabel { display:flex; justify-content:space-between; font-size:.85rem; color:var(--muted); margin:12px 0 4px; }
-label.slabel b { color:var(--text); }
-input[type=range] { width:100%; accent-color:var(--purple); }
-.result { text-align:center; padding:8px 0; }
-.result .cls { font-size:1.8rem; font-weight:800; background:linear-gradient(90deg,var(--blue),var(--purple)); -webkit-background-clip:text; background-clip:text; color:transparent; }
-.bar { height:12px; border-radius:999px; background:var(--panel2); overflow:hidden; border:1px solid var(--line); }
-.bar > span { display:block; height:100%; background:linear-gradient(90deg,var(--green),#10b981); width:0%; transition:width .5s ease; }
-.barrow { margin:10px 0; }
-.barrow .lab { display:flex; justify-content:space-between; font-size:.8rem; color:var(--muted); margin-bottom:4px; }
-pre { background:#070d1c; border:1px solid var(--line); border-radius:12px; padding:14px 16px; overflow-x:auto; margin:0;
-  font-family:"SFMono-Regular",Consolas,Menlo,monospace; font-size:.84rem; color:#cbd5e1; }
-.step { border:1px solid var(--line); border-radius:14px; overflow:hidden; margin-bottom:12px; background:var(--panel); }
-.step > button {
-  width:100%; text-align:left; cursor:pointer; border:none; background:transparent; color:var(--text);
-  display:flex; align-items:center; gap:14px; padding:16px 18px; font-size:1rem;
-}
-.step > button:hover { background:var(--panel2); }
-.step .num {
-  flex:0 0 auto; width:34px; height:34px; border-radius:10px; display:grid; place-items:center;
-  font-weight:700; background:linear-gradient(135deg,var(--blue),var(--purple)); color:#fff;
-}
-.step .arrow { margin-left:auto; color:var(--muted); transition:transform .2s ease; }
-.step.open .arrow { transform:rotate(90deg); }
-.step .body { display:none; padding:4px 18px 18px 66px; border-top:1px solid var(--line); }
-.step.open .body { display:block; }
-.kv { display:grid; grid-template-columns:130px 1fr; gap:6px 14px; margin-top:10px; font-size:.9rem; }
-.kv .key { color:var(--muted); }
-.flowline { display:flex; flex-wrap:wrap; align-items:center; gap:8px; margin:16px 0 6px; }
-.chip { padding:7px 12px; border-radius:10px; background:var(--panel); border:1px solid var(--line); font-size:.85rem; }
-.chip .sub { color:var(--muted); font-size:.74rem; display:block; }
-.sep { color:var(--purple); font-weight:700; }
-footer { color:var(--muted); font-size:.82rem; border-top:1px solid var(--line); margin-top:40px; padding-top:18px; }
-code.inline { background:var(--panel2); padding:1px 6px; border-radius:6px; font-size:.85em; }
-</style>
-</head>
-<body>
-<nav class="nav">
-  <div class="brand">Iris MLOps<span class="dot">.</span></div>
-  <div class="links">
-    <a href="/">Dashboard</a>
-    <a href="/demo" class="active">Architecture</a>
-    <a href="/demo/flow">Flow Explorer</a>
-    <a href="/docs">Swagger</a>
-    <a href="/health">Health</a>
-  </div>
-</nav>
-<div class="wrap">
-
-<div class="hero">
-  <h1>System Architecture</h1>
-  <p>End-to-end MLOps pipeline on Microsoft Azure. A push to GitHub runs CI; a merge to main runs CD,
-     promoting a gated model through staging and into production with monitoring at every layer.</p>
-  <div class="badges">
-    <span class="badge green">CI/CD automated</span>
-    <span class="badge blue">Azure native</span>
-    <span class="badge purple">Graceful offline mode</span>
-  </div>
-</div>
-
-<h2 class="section">End-to-end flow</h2>
-<div class="card"><div class="flowline"><div class="chip">Developer<span class="sub">git push</span></div><span class="sep">&rarr;</span><div class="chip">GitHub Actions<span class="sub">CI + CD</span></div><span class="sep">&rarr;</span><div class="chip">Tests<span class="sub">pytest 70%+</span></div><span class="sep">&rarr;</span><div class="chip">Train<span class="sub">MLflow</span></div><span class="sep">&rarr;</span><div class="chip">Quality Gate<span class="sub">accuracy >= 0.90</span></div><span class="sep">&rarr;</span><div class="chip">Azure ML<span class="sub">register</span></div><span class="sep">&rarr;</span><div class="chip">Docker<span class="sub">build</span></div><span class="sep">&rarr;</span><div class="chip">ACR<span class="sub">push image</span></div><span class="sep">&rarr;</span><div class="chip">ACI<span class="sub">staging + smoke</span></div><span class="sep">&rarr;</span><div class="chip">AKS<span class="sub">production + smoke</span></div><span class="sep">&rarr;</span><div class="chip">FastAPI<span class="sub">serve /predict</span></div><span class="sep">&rarr;</span><div class="chip">App Insights<span class="sub">telemetry</span></div><span class="sep">&rarr;</span><div class="chip">Evidently<span class="sub">drift</span></div><span class="sep">&rarr;</span><div class="chip">OpenRouter<span class="sub">AI report</span></div></div></div>
-
-<h2 class="section">Pipeline</h2><div class="grid g3"><div class="card"><div class="name" style="font-weight:600">GitHub Actions</div>
-            <div class="sub" style="color:var(--muted);font-size:.84rem;margin-top:4px">CI/CD orchestration</div></div><div class="card"><div class="name" style="font-weight:600">MLflow</div>
-            <div class="sub" style="color:var(--muted);font-size:.84rem;margin-top:4px">Experiment tracking</div></div><div class="card"><div class="name" style="font-weight:600">Quality Gate</div>
-            <div class="sub" style="color:var(--muted);font-size:.84rem;margin-top:4px">Accuracy threshold guard</div></div></div><h2 class="section">Azure</h2><div class="grid g3"><div class="card"><div class="name" style="font-weight:600">Azure ML</div>
-            <div class="sub" style="color:var(--muted);font-size:.84rem;margin-top:4px">Model registry + governance</div></div><div class="card"><div class="name" style="font-weight:600">Azure Blob Storage</div>
-            <div class="sub" style="color:var(--muted);font-size:.84rem;margin-top:4px">Dataset versioning</div></div><div class="card"><div class="name" style="font-weight:600">Azure Container Registry</div>
-            <div class="sub" style="color:var(--muted);font-size:.84rem;margin-top:4px">Image storage (ACR)</div></div></div><h2 class="section">Build</h2><div class="grid g3"><div class="card"><div class="name" style="font-weight:600">Docker</div>
-            <div class="sub" style="color:var(--muted);font-size:.84rem;margin-top:4px">Reproducible packaging</div></div></div><h2 class="section">Deploy</h2><div class="grid g3"><div class="card"><div class="name" style="font-weight:600">ACI Staging</div>
-            <div class="sub" style="color:var(--muted);font-size:.84rem;margin-top:4px">Pre-prod validation</div></div><div class="card"><div class="name" style="font-weight:600">AKS Production</div>
-            <div class="sub" style="color:var(--muted);font-size:.84rem;margin-top:4px">Scalable serving</div></div></div><h2 class="section">Serve</h2><div class="grid g3"><div class="card"><div class="name" style="font-weight:600">FastAPI</div>
-            <div class="sub" style="color:var(--muted);font-size:.84rem;margin-top:4px">REST inference API</div></div></div><h2 class="section">Monitor</h2><div class="grid g3"><div class="card"><div class="name" style="font-weight:600">Application Insights</div>
-            <div class="sub" style="color:var(--muted);font-size:.84rem;margin-top:4px">Telemetry + logs</div></div><div class="card"><div class="name" style="font-weight:600">Evidently Drift</div>
-            <div class="sub" style="color:var(--muted);font-size:.84rem;margin-top:4px">Data drift detection</div></div><div class="card"><div class="name" style="font-weight:600">OpenRouter Report</div>
-            <div class="sub" style="color:var(--muted);font-size:.84rem;margin-top:4px">AI run summary</div></div></div>
-
-<h2 class="section">How it fits together</h2>
-<div class="grid g2">
-  <div class="card">
-    <div style="font-weight:600;margin-bottom:6px">Continuous Integration</div>
-    <div style="color:var(--muted);font-size:.9rem">Install deps &rarr; run tests &amp; coverage &rarr; ingest data &rarr;
-    train with MLflow &rarr; quality gate &rarr; drift detection &rarr; OpenRouter report. Artifacts uploaded for review.</div>
-  </div>
-  <div class="card">
-    <div style="font-weight:600;margin-bottom:6px">Continuous Deployment</div>
-    <div style="color:var(--muted);font-size:.9rem">Azure login &rarr; train &rarr; quality gate &rarr; register in Azure ML &rarr;
-    build &amp; push to ACR &rarr; ACI staging + smoke test &rarr; AKS production + smoke test.</div>
-  </div>
-</div>
-
-<div class="linkrow" style="margin-top:22px">
-  <a class="btn primary" href="/demo/flow">Open the line-by-line flow explorer &rarr;</a>
-  <a class="btn" href="/">Back to dashboard</a>
-</div>
-
-<footer>Architecture overview &middot; see docs/architecture.md for the full write-up.</footer>
-</div>
-</body>
-</html>
+.card .k{color:var(--muted); font-size:.78rem; text-transform:uppercase; letter-spacing:.06em;}
+.card .v{font-size:1.55rem; font-weight:800; margin-top:4px;}
+.card .sub{color:var(--muted); font-size:.82rem; margin-top:4px;}
+.stage{display:flex; flex-direction:column; gap:10px;}
+.stage .top{display:flex; align-items:center; justify-content:space-between;}
+.stage .name{font-weight:700; font-size:.96rem;}
+.stage .idx{color:var(--muted); font-size:.72rem;}
+.dotpill{display:inline-flex; align-items:center; gap:7px; font-size:.76rem; color:var(--muted);}
+.dotpill::before{content:""; width:9px; height:9px; border-radius:50%; background:var(--muted);}
+.dotpill.ok::before{background:var(--green); box-shadow:0 0 10px var(--green);}
+.dotpill.ready::before{background:var(--blue); box-shadow:0 0 10px var(--blue);}
+.dotpill.skip::before{background:var(--amber); box-shadow:0 0 8px var(--amber);}
+.dotpill.off::before{background:var(--red); box-shadow:0 0 8px var(--red);}
+.linkrow{display:flex; flex-wrap:wrap; gap:10px;}
+.btn{display:inline-flex; align-items:center; gap:7px; padding:9px 15px; border-radius:11px; font-size:.9rem; cursor:pointer;
+  border:1px solid var(--line); background:var(--glass2); color:var(--text); transition:.15s;}
+.btn:hover{text-decoration:none; border-color:var(--blue); transform:translateY(-1px);}
+.btn.primary{background:linear-gradient(90deg,var(--blue),var(--purple)); border:none; color:#fff; font-weight:700;}
+.btn.primary:hover{filter:brightness(1.1);}
+.btn.ghost{background:transparent;}
+.btn:disabled{opacity:.4; cursor:not-allowed; transform:none;}
+label.slabel{display:flex; justify-content:space-between; font-size:.85rem; color:var(--muted); margin:14px 0 5px;}
+label.slabel b{color:var(--text);}
+input[type=range]{width:100%; accent-color:var(--purple); height:6px;}
+.result{text-align:center; padding:6px 0 2px;}
+.result .cls{font-size:1.9rem; font-weight:900; text-transform:capitalize;
+  background:linear-gradient(90deg,var(--blue),var(--purple)); -webkit-background-clip:text; background-clip:text; color:transparent;}
+.barrow{margin:10px 0;}
+.barrow .lab{display:flex; justify-content:space-between; font-size:.82rem; color:var(--muted); margin-bottom:5px; text-transform:capitalize;}
+.bar{height:12px; border-radius:999px; background:rgba(10,16,32,.8); overflow:hidden; border:1px solid var(--line);}
+.bar>span{display:block; height:100%; width:0%; transition:width .55s cubic-bezier(.2,.8,.2,1); background:linear-gradient(90deg,var(--blue),var(--purple));}
+.bar.win>span{background:linear-gradient(90deg,var(--green),#10b981);}
+pre{background:rgba(4,8,20,.85); border:1px solid var(--line); border-radius:12px; padding:13px 15px; overflow-x:auto; margin:0;
+  font-family:"SFMono-Regular",Consolas,Menlo,monospace; font-size:.84rem; color:#cbd5e1;}
+code.inline{background:var(--glass2); padding:1px 6px; border-radius:6px; font-size:.85em;}
+footer{color:var(--muted); font-size:.82rem; border-top:1px solid var(--line); margin-top:42px; padding-top:18px;}
+/* demo tour */
+.toolbar{display:flex; align-items:center; gap:10px; flex-wrap:wrap; margin-bottom:16px;}
+.toolbar .count{margin-left:auto; color:var(--muted); font-size:.86rem;}
+.toolbar .count b{color:var(--text);}
+.filters{display:flex; flex-wrap:wrap; gap:8px; margin-bottom:16px;}
+.filter{padding:7px 13px; border-radius:999px; font-size:.83rem; cursor:pointer; color:var(--muted);
+  border:1px solid var(--line); background:var(--glass2);}
+.filter:hover{color:var(--text);}
+.filter.active{color:#fff; background:linear-gradient(90deg,rgba(79,140,255,.3),rgba(163,104,255,.3)); border-color:var(--blue);}
+.stepgrid{display:grid; grid-template-columns:repeat(auto-fill,minmax(150px,1fr)); gap:12px;}
+.scard{cursor:pointer; border:1px solid var(--line); border-radius:14px; padding:13px 14px; background:var(--glass);
+  transition:.15s; position:relative; overflow:hidden;}
+.scard:hover{transform:translateY(-2px); border-color:var(--blue);}
+.scard.active{border-color:var(--purple); box-shadow:0 0 0 1px var(--purple), 0 10px 26px rgba(120,60,210,.25);}
+.scard .n{font-size:.74rem; color:var(--muted);}
+.scard .t{font-weight:700; margin-top:3px;}
+.scard .c{margin-top:8px; font-size:.7rem; color:var(--muted); text-transform:uppercase; letter-spacing:.05em;}
+.scard.hidden{display:none;}
+.detail{margin-top:16px; border:1px solid var(--line); border-radius:16px; padding:20px 22px; background:var(--glass);}
+.detail h3{margin:0; font-size:1.3rem; display:flex; align-items:center; gap:10px;}
+.detail .livebadge{font-size:.66rem; letter-spacing:.1em; padding:3px 8px; border-radius:999px; background:rgba(6,40,27,.7);
+  border:1px solid rgba(52,211,153,.5); color:#6ee7b7;}
+.detail .livebadge::before{content:""; display:inline-block; width:6px;height:6px;border-radius:50%;background:var(--green);margin-right:5px;box-shadow:0 0 8px var(--green);}
+.detail .tags{display:flex; flex-wrap:wrap; gap:6px; margin:12px 0;}
+.detail .tag{font-size:.74rem; padding:3px 9px; border-radius:999px; background:var(--glass2); border:1px solid var(--line); color:var(--muted);}
+.detail ul{margin:10px 0 14px; padding-left:18px; color:var(--muted);}
+.detail ul li{margin-bottom:5px;}
+/* architecture */
+.archscroll{overflow-x:auto; border:1px solid var(--line); border-radius:18px; background:
+  linear-gradient(180deg, rgba(10,16,34,.7), rgba(6,10,22,.85)); padding:8px;}
+.archcanvas{position:relative;}
+.lane{position:absolute; left:0; right:0; border:1px dashed rgba(86,113,168,.22); border-radius:14px;}
+.lane .lanelabel{position:absolute; top:8px; left:12px; font-size:.7rem; text-transform:uppercase; letter-spacing:.14em; color:var(--muted);}
+.node{position:absolute; border-radius:13px; padding:8px 10px; background:var(--glass); border:1px solid var(--line);
+  box-shadow:0 8px 22px rgba(0,0,0,.3); display:flex; flex-direction:column; justify-content:center;}
+.node .nl{font-weight:700; font-size:.84rem; line-height:1.15;}
+.node .ns{font-size:.68rem; color:var(--muted); margin-top:2px;}
+.legend{display:flex; flex-wrap:wrap; gap:16px; margin-top:14px;}
+.legend .li{display:flex; align-items:center; gap:7px; font-size:.82rem; color:var(--muted);}
+.legend .sw{width:14px;height:14px;border-radius:4px;}
+/* flow explorer */
+.flowlayout{display:grid; grid-template-columns:300px 1fr; gap:18px;}
+@media(max-width:820px){.flowlayout{grid-template-columns:1fr;}}
+.progress{height:8px; border-radius:999px; background:rgba(10,16,32,.8); border:1px solid var(--line); overflow:hidden; margin-bottom:14px;}
+.progress>span{display:block; height:100%; width:4%; background:linear-gradient(90deg,var(--blue),var(--purple)); transition:width .35s ease;}
+.timeline{max-height:560px; overflow-y:auto; border:1px solid var(--line); border-radius:14px; padding:8px; background:var(--glass);}
+.tline{display:flex; gap:10px; align-items:center; padding:9px 10px; border-radius:10px; cursor:pointer; color:var(--muted); font-size:.86rem;}
+.tline:hover{background:var(--glass2); color:var(--text);}
+.tline.active{background:linear-gradient(90deg,rgba(79,140,255,.22),rgba(163,104,255,.18)); color:#fff;}
+.tline .tn{flex:0 0 auto; width:26px; height:26px; border-radius:8px; display:grid; place-items:center; font-size:.74rem; font-weight:700;
+  background:linear-gradient(135deg,var(--blue),var(--purple)); color:#fff;}
+.tline.done .tn{background:linear-gradient(135deg,var(--green),#10b981);}
+.kv{display:grid; grid-template-columns:140px 1fr; gap:8px 14px; margin-top:12px; font-size:.9rem;}
+.kv .key{color:var(--muted);}
+.chiprow{display:flex; flex-wrap:wrap; gap:6px;}
+.chip{font-size:.74rem; padding:3px 9px; border-radius:999px; background:var(--glass2); border:1px solid var(--line); color:var(--muted);}
+</style></head><body><nav class="nav"><div class="brand">Iris MLOps<span class="dot">.</span></div><div class="links"><a href="/">Dashboard</a><a href="/demo" class="active">Demo</a><a href="/demo/flow">Flow Explorer</a><a href="/docs">Swagger</a><a href="/health">Health</a></div></nav><div class="wrap"><div class="hero"><h1>Azure MLOps &times; OpenRouter &mdash; Interactive Demo</h1><p>Walk the full pipeline one step at a time, or jump straight to any stage. Each card updates the detail panel with what happens, tags, key points and the command to run.</p></div><div class="toolbar"><button class="btn" id="prevBtn" onclick="step(-1)">&larr; Previous</button><button class="btn primary" id="nextBtn" onclick="step(1)">Next step &rarr;</button><button class="btn ghost" onclick="resetTour()">Reset tour</button><span class="count">Demo mode &middot; Step <b id="stepNo">1</b> of <b>14</b></span></div><div class="filters"><div class="filter active" data-filter="all" onclick="setFilter(this)">All stages</div><div class="filter" data-filter="data" onclick="setFilter(this)">Data &amp; ML</div><div class="filter" data-filter="quality" onclick="setFilter(this)">Quality &amp; registry</div><div class="filter" data-filter="cicd" onclick="setFilter(this)">CI/CD &amp; Docker</div><div class="filter" data-filter="azure" onclick="setFilter(this)">Azure deploy</div><div class="filter" data-filter="serve" onclick="setFilter(this)">Serve &amp; observe</div></div><div class="stepgrid" id="stepGrid"><div class="scard" data-cat="cicd" data-n="1" onclick="selectStep(1)"><div class="n">Step 01</div><div class="t">Repository</div><div class="c">cicd</div></div><div class="scard" data-cat="data" data-n="2" onclick="selectStep(2)"><div class="n">Step 02</div><div class="t">Data ingest</div><div class="c">data</div></div><div class="scard" data-cat="data" data-n="3" onclick="selectStep(3)"><div class="n">Step 03</div><div class="t">Schema check</div><div class="c">data</div></div><div class="scard" data-cat="data" data-n="4" onclick="selectStep(4)"><div class="n">Step 04</div><div class="t">Training</div><div class="c">data</div></div><div class="scard" data-cat="quality" data-n="5" onclick="selectStep(5)"><div class="n">Step 05</div><div class="t">Quality gate</div><div class="c">quality</div></div><div class="scard" data-cat="quality" data-n="6" onclick="selectStep(6)"><div class="n">Step 06</div><div class="t">Registry</div><div class="c">quality</div></div><div class="scard" data-cat="cicd" data-n="7" onclick="selectStep(7)"><div class="n">Step 07</div><div class="t">GitHub CI</div><div class="c">cicd</div></div><div class="scard" data-cat="cicd" data-n="8" onclick="selectStep(8)"><div class="n">Step 08</div><div class="t">GitHub CD</div><div class="c">cicd</div></div><div class="scard" data-cat="cicd" data-n="9" onclick="selectStep(9)"><div class="n">Step 09</div><div class="t">Docker</div><div class="c">cicd</div></div><div class="scard" data-cat="azure" data-n="10" onclick="selectStep(10)"><div class="n">Step 10</div><div class="t">ACI staging</div><div class="c">azure</div></div><div class="scard" data-cat="azure" data-n="11" onclick="selectStep(11)"><div class="n">Step 11</div><div class="t">AKS production</div><div class="c">azure</div></div><div class="scard" data-cat="serve" data-n="12" onclick="selectStep(12)"><div class="n">Step 12</div><div class="t">FastAPI + UI</div><div class="c">serve</div></div><div class="scard" data-cat="serve" data-n="13" onclick="selectStep(13)"><div class="n">Step 13</div><div class="t">Drift report</div><div class="c">serve</div></div><div class="scard" data-cat="serve" data-n="14" onclick="selectStep(14)"><div class="n">Step 14</div><div class="t">OpenRouter</div><div class="c">serve</div></div></div><div class="detail" id="detail"></div><h2 class="section">Full system architecture</h2><div class="archscroll"><div class="archcanvas" style="width:1240px;height:760px"><svg width="1240" height="760" style="position:absolute;left:0;top:0"><defs><marker id="arr-data" markerWidth="9" markerHeight="9" refX="7" refY="3" orient="auto"><path d="M0,0 L7,3 L0,6 Z" fill="#4f8cff"/></marker><marker id="arr-deploy" markerWidth="9" markerHeight="9" refX="7" refY="3" orient="auto"><path d="M0,0 L7,3 L0,6 Z" fill="#34d399"/></marker><marker id="arr-obs" markerWidth="9" markerHeight="9" refX="7" refY="3" orient="auto"><path d="M0,0 L7,3 L0,6 Z" fill="#a368ff"/></marker><marker id="arr-auth" markerWidth="9" markerHeight="9" refX="7" refY="3" orient="auto"><path d="M0,0 L7,3 L0,6 Z" fill="#fbbf24"/></marker></defs><path d="M 140 124.0 L 175 124.0" fill="none" stroke="#fbbf24" stroke-width="2" stroke-opacity="0.7" marker-end="url(#arr-auth)"/><path d="M 305 124.0 L 345 124.0" fill="none" stroke="#fbbf24" stroke-width="2" stroke-opacity="0.7" marker-end="url(#arr-auth)"/><path d="M 465 124.0 L 490 124.0" fill="none" stroke="#4f8cff" stroke-width="2" stroke-opacity="0.7" marker-end="url(#arr-data)"/><path d="M 600 124.0 L 625 124.0" fill="none" stroke="#4f8cff" stroke-width="2" stroke-opacity="0.7" marker-end="url(#arr-data)"/><path d="M 735 124.0 L 760 124.0" fill="none" stroke="#4f8cff" stroke-width="2" stroke-opacity="0.7" marker-end="url(#arr-data)"/><path d="M 890 124.0 L 915 124.0" fill="none" stroke="#4f8cff" stroke-width="2" stroke-opacity="0.7" marker-end="url(#arr-data)"/><path d="M 405.0 152 L 405.0 219.0 L 405.0 219.0 L 405.0 286" fill="none" stroke="#4f8cff" stroke-width="2" stroke-opacity="0.7" marker-end="url(#arr-data)"/><path d="M 825.0 152 L 825.0 219.0 L 825.0 219.0 L 825.0 286" fill="none" stroke="#4f8cff" stroke-width="2" stroke-opacity="0.7" marker-end="url(#arr-data)"/><path d="M 980.0 152 L 980.0 219.0 L 980.0 219.0 L 980.0 286" fill="none" stroke="#34d399" stroke-width="2" stroke-opacity="0.7" marker-end="url(#arr-deploy)"/><path d="M 1045 314.0 L 1080 276.0" fill="none" stroke="#34d399" stroke-width="2" stroke-opacity="0.7" marker-end="url(#arr-deploy)"/><path d="M 1145.0 302 L 1145.0 311.0 L 1145.0 311.0 L 1145.0 320" fill="none" stroke="#34d399" stroke-width="2" stroke-opacity="0.7" marker-end="url(#arr-deploy)"/><path d="M 1145.0 372 L 1145.0 421.0 L 980.0 421.0 L 980.0 470" fill="none" stroke="#34d399" stroke-width="2" stroke-opacity="0.7" marker-end="url(#arr-deploy)"/><path d="M 915 498.0 L 465 498.0" fill="none" stroke="#34d399" stroke-width="2" stroke-opacity="0.7" marker-end="url(#arr-deploy)"/><path d="M 915 498.0 L 625 498.0" fill="none" stroke="#34d399" stroke-width="2" stroke-opacity="0.7" marker-end="url(#arr-deploy)"/><path d="M 915 498.0 L 800 498.0" fill="none" stroke="#34d399" stroke-width="2" stroke-opacity="0.7" marker-end="url(#arr-deploy)"/><path d="M 980.0 526 L 980.0 583.0 L 825.0 583.0 L 825.0 640" fill="none" stroke="#a368ff" stroke-width="2" stroke-opacity="0.7" marker-end="url(#arr-obs)"/><path d="M 980.0 526 L 980.0 583.0 L 415.0 583.0 L 415.0 640" fill="none" stroke="#a368ff" stroke-width="2" stroke-opacity="0.7" marker-end="url(#arr-obs)"/><path d="M 485 668.0 L 515 668.0" fill="none" stroke="#a368ff" stroke-width="2" stroke-opacity="0.7" marker-end="url(#arr-obs)"/><path d="M 890 668.0 L 915 668.0" fill="none" stroke="#a368ff" stroke-width="2" stroke-opacity="0.7" marker-end="url(#arr-obs)"/><path d="M 665 668.0 L 915 668.0" fill="none" stroke="#a368ff" stroke-width="2" stroke-opacity="0.7" marker-end="url(#arr-obs)"/></svg><div class="lane" style="top:60px;height:130px"><span class="lanelabel">ML Pipeline</span></div><div class="lane" style="top:220px;height:170px"><span class="lanelabel">Azure</span></div><div class="lane" style="top:430px;height:130px"><span class="lanelabel">Serve</span></div><div class="lane" style="top:600px;height:130px"><span class="lanelabel">Observability</span></div><div class="node" style="left:20px;top:96px;width:120px;height:56px;border-color:#fbbf24;box-shadow:0 0 0 1px #fbbf2433, 0 8px 22px rgba(0,0,0,.3)"><div class="nl" style="color:#fbbf24">Developer</div><div class="ns">git push</div></div><div class="node" style="left:175px;top:96px;width:130px;height:56px;border-color:#fbbf24;box-shadow:0 0 0 1px #fbbf2433, 0 8px 22px rgba(0,0,0,.3)"><div class="nl" style="color:#fbbf24">GitHub Actions</div><div class="ns">CI / CD</div></div><div class="node" style="left:345px;top:96px;width:120px;height:56px;border-color:#4f8cff;box-shadow:0 0 0 1px #4f8cff33, 0 8px 22px rgba(0,0,0,.3)"><div class="nl" style="color:#4f8cff">01 Ingest</div><div class="ns">ingest_data.py</div></div><div class="node" style="left:490px;top:96px;width:110px;height:56px;border-color:#4f8cff;box-shadow:0 0 0 1px #4f8cff33, 0 8px 22px rgba(0,0,0,.3)"><div class="nl" style="color:#4f8cff">02 Train</div><div class="ns">train.py</div></div><div class="node" style="left:625px;top:96px;width:110px;height:56px;border-color:#4f8cff;box-shadow:0 0 0 1px #4f8cff33, 0 8px 22px rgba(0,0,0,.3)"><div class="nl" style="color:#4f8cff">03 Gate</div><div class="ns">evaluate.py</div></div><div class="node" style="left:760px;top:96px;width:130px;height:56px;border-color:#4f8cff;box-shadow:0 0 0 1px #4f8cff33, 0 8px 22px rgba(0,0,0,.3)"><div class="nl" style="color:#4f8cff">04 Registry</div><div class="ns">register_model.py</div></div><div class="node" style="left:915px;top:96px;width:130px;height:56px;border-color:#34d399;box-shadow:0 0 0 1px #34d39933, 0 8px 22px rgba(0,0,0,.3)"><div class="nl" style="color:#34d399">05 Docker</div><div class="ns">build_container.py</div></div><div class="node" style="left:345px;top:286px;width:120px;height:56px;border-color:#4f8cff;box-shadow:0 0 0 1px #4f8cff33, 0 8px 22px rgba(0,0,0,.3)"><div class="nl" style="color:#4f8cff">Blob Storage</div><div class="ns">datasets</div></div><div class="node" style="left:760px;top:286px;width:130px;height:56px;border-color:#4f8cff;box-shadow:0 0 0 1px #4f8cff33, 0 8px 22px rgba(0,0,0,.3)"><div class="nl" style="color:#4f8cff">Azure ML</div><div class="ns">model registry</div></div><div class="node" style="left:915px;top:286px;width:130px;height:56px;border-color:#34d399;box-shadow:0 0 0 1px #34d39933, 0 8px 22px rgba(0,0,0,.3)"><div class="nl" style="color:#34d399">ACR</div><div class="ns">image registry</div></div><div class="node" style="left:1080px;top:250px;width:130px;height:52px;border-color:#34d399;box-shadow:0 0 0 1px #34d39933, 0 8px 22px rgba(0,0,0,.3)"><div class="nl" style="color:#34d399">ACI Staging</div><div class="ns">pre-prod</div></div><div class="node" style="left:1080px;top:320px;width:130px;height:52px;border-color:#34d399;box-shadow:0 0 0 1px #34d39933, 0 8px 22px rgba(0,0,0,.3)"><div class="nl" style="color:#34d399">AKS Production</div><div class="ns">scaled serving</div></div><div class="node" style="left:915px;top:470px;width:130px;height:56px;border-color:#34d399;box-shadow:0 0 0 1px #34d39933, 0 8px 22px rgba(0,0,0,.3)"><div class="nl" style="color:#34d399">FastAPI</div><div class="ns">/health /predict</div></div><div class="node" style="left:345px;top:470px;width:120px;height:56px;border-color:#34d399;box-shadow:0 0 0 1px #34d39933, 0 8px 22px rgba(0,0,0,.3)"><div class="nl" style="color:#34d399">Dashboard</div><div class="ns">/</div></div><div class="node" style="left:505px;top:470px;width:120px;height:56px;border-color:#34d399;box-shadow:0 0 0 1px #34d39933, 0 8px 22px rgba(0,0,0,.3)"><div class="nl" style="color:#34d399">Demo</div><div class="ns">/demo</div></div><div class="node" style="left:660px;top:470px;width:140px;height:56px;border-color:#34d399;box-shadow:0 0 0 1px #34d39933, 0 8px 22px rgba(0,0,0,.3)"><div class="nl" style="color:#34d399">Flow Explorer</div><div class="ns">/demo/flow</div></div><div class="node" style="left:345px;top:640px;width:140px;height:56px;border-color:#a368ff;box-shadow:0 0 0 1px #a368ff33, 0 8px 22px rgba(0,0,0,.3)"><div class="nl" style="color:#a368ff">Evidently Drift</div><div class="ns">reports/drift</div></div><div class="node" style="left:515px;top:640px;width:150px;height:56px;border-color:#a368ff;box-shadow:0 0 0 1px #a368ff33, 0 8px 22px rgba(0,0,0,.3)"><div class="nl" style="color:#a368ff">OpenRouter LLM</div><div class="ns">ai_report.md</div></div><div class="node" style="left:760px;top:640px;width:130px;height:56px;border-color:#a368ff;box-shadow:0 0 0 1px #a368ff33, 0 8px 22px rgba(0,0,0,.3)"><div class="nl" style="color:#a368ff">App Insights</div><div class="ns">telemetry</div></div><div class="node" style="left:915px;top:640px;width:140px;height:56px;border-color:#a368ff;box-shadow:0 0 0 1px #a368ff33, 0 8px 22px rgba(0,0,0,.3)"><div class="nl" style="color:#a368ff">Teams Webhook</div><div class="ns">alerts</div></div></div></div><div class="legend"><div class="li"><span class="sw" style="background:#4f8cff"></span>Data / ML</div><div class="li"><span class="sw" style="background:#34d399"></span>Deploy</div><div class="li"><span class="sw" style="background:#a368ff"></span>Observability</div><div class="li"><span class="sw" style="background:#fbbf24"></span>Auth / Trigger</div></div><div class="linkrow" style="margin-top:22px"><a class="btn primary" href="/demo/flow">Open the line-by-line flow explorer &rarr;</a><a class="btn" href="/">Back to dashboard</a></div><footer>Interactive architecture &amp; tour &middot; rendered with plain HTML/CSS/SVG, served by FastAPI.</footer><script type="application/json" id="demoData">[{"n": 1, "title": "Repository", "cat": "cicd", "desc": "All code and configuration live in GitHub. A push to main is the single trigger that drives the entire MLOps pipeline.", "tags": ["git", "github", "source-of-truth"], "bullets": ["Mono-repo: app, mlops pipeline, tests, docs, workflows.", "No secrets committed; everything via env vars / GitHub Secrets.", "Branch protection + CI status checks gate merges."], "command": "git push origin main"}, {"n": 2, "title": "Data ingest", "cat": "data", "desc": "Load the Iris dataset, hash it for reproducibility, write raw + reference snapshots and a metadata sidecar, then optionally upload to Azure Blob.", "tags": ["pandas", "sklearn", "hashing"], "bullets": ["Deterministic SHA-256 dataset hash for lineage.", "Reference snapshot frozen for later drift comparison.", "Blob upload skips gracefully without credentials."], "command": "python mlops/ingest_data.py --no-upload"}, {"n": 3, "title": "Schema check", "cat": "data", "desc": "Validate column names, types and ranges before training so a malformed dataset fails fast instead of producing a silently broken model.", "tags": ["validation", "data-quality"], "bullets": ["Four numeric features in a fixed canonical order.", "Non-negative measurements enforced at the API too.", "Metadata records row count, classes and hash."], "command": "python -c \"import pandas as pd; print(pd.read_csv('data/raw/iris.csv').describe())\""}, {"n": 4, "title": "Training", "cat": "data", "desc": "Stratified train/test split, fit a RandomForest, and log parameters, metrics and artifacts to MLflow for full experiment tracking.", "tags": ["scikit-learn", "mlflow", "random-forest"], "bullets": ["Reproducible split with a fixed random seed.", "Params + metrics + model logged to MLflow.", "Confusion matrix and metrics.json saved to reports/."], "command": "python mlops/train.py"}, {"n": 5, "title": "Quality gate", "cat": "quality", "desc": "Compare accuracy against the configured threshold. A failure exits non-zero so CI/CD halts before anything is deployed.", "tags": ["governance", "ci-gate"], "bullets": ["Threshold defaults to accuracy >= 0.90.", "Exit 0 = pass, exit 1 = block deployment.", "Demo-fail mode proves the gate stops bad models."], "command": "python mlops/evaluate.py"}, {"n": 6, "title": "Registry", "cat": "quality", "desc": "Register the approved model in the Azure ML registry with governance tags so every deployed model is traceable and rollback is one command.", "tags": ["azure-ml", "governance", "rollback"], "bullets": ["Tags: accuracy, dataset_hash, git_sha, created_by, version.", "Versioned models enable instant rollback.", "Skips gracefully when Azure is not configured."], "command": "python mlops/register_model.py"}, {"n": 7, "title": "GitHub CI", "cat": "cicd", "desc": "On every push the CI workflow installs deps, runs tests with coverage, trains, gates, runs drift detection and generates the AI report.", "tags": ["github-actions", "pytest", "coverage"], "bullets": ["Coverage gate enforced at >= 70%.", "Artifacts (reports, model) uploaded for review.", "Fast feedback on every commit and PR."], "command": "gh workflow run ci.yml"}, {"n": 8, "title": "GitHub CD", "cat": "cicd", "desc": "On merge to main the CD workflow logs into Azure, re-runs the gate, registers the model, builds/pushes the image and deploys through staging to production.", "tags": ["github-actions", "azure-login", "promotion"], "bullets": ["Azure service-principal login from GitHub Secrets.", "Gate failure stops the job before any deploy.", "Staging smoke test must pass before production."], "command": "gh workflow run cd.yml"}, {"n": 9, "title": "Docker", "cat": "cicd", "desc": "Package the FastAPI service into a lean Python 3.11-slim image, tag it with the git SHA and latest, and push it to Azure Container Registry.", "tags": ["docker", "acr", "packaging"], "bullets": ["Non-root container with a built-in healthcheck.", "Lean serving deps keep the image small.", "Immutable SHA tags enable precise rollbacks."], "command": "python mlops/build_container.py"}, {"n": 10, "title": "ACI staging", "cat": "azure", "desc": "Deploy the image to Azure Container Instances as a fast, cheap pre-production environment and smoke-test the live endpoint.", "tags": ["azure-aci", "staging", "smoke-test"], "bullets": ["HTTP smoke test hits /health and /predict.", "Validates the image before production exposure.", "Clear errors when prerequisites are missing."], "command": "python mlops/deploy_aci.py --tag latest"}, {"n": 11, "title": "AKS production", "cat": "azure", "desc": "Promote to Azure Kubernetes Service with a Deployment + LoadBalancer, readiness/liveness probes and replicas, then smoke-test production.", "tags": ["azure-aks", "kubernetes", "production"], "bullets": ["Multiple replicas for high availability.", "Readiness/liveness probes hit /health.", "External IP smoke-tested before sign-off."], "command": "python mlops/deploy_aks.py --tag latest"}, {"n": 12, "title": "FastAPI + UI", "cat": "serve", "desc": "The service exposes /health and /predict plus this dark dashboard, the demo tour and the flow explorer - all served directly by FastAPI.", "tags": ["fastapi", "rest", "dashboard"], "bullets": ["Pydantic-validated request and response models.", "Browsers get HTML; clients get JSON from /.", "Interactive prediction wired to POST /predict."], "command": "uvicorn app.main:app --reload"}, {"n": 13, "title": "Drift report", "cat": "serve", "desc": "Compare live data against the frozen reference with Evidently (PSI fallback) and publish an HTML drift report for monitoring.", "tags": ["evidently", "drift", "monitoring"], "bullets": ["Per-feature PSI with a clear drift verdict.", "Simulated-drift mode for demonstrations.", "Report viewable at /reports/drift."], "command": "python mlops/drift_detection.py --simulate"}, {"n": 14, "title": "OpenRouter", "cat": "serve", "desc": "Summarise the whole run - metrics, gate, drift and deployment - via an OpenRouter LLM, with a deterministic local fallback when no key is set.", "tags": ["openrouter", "llm", "reporting"], "bullets": ["Concise ship / investigate / rollback recommendation.", "Never fails the pipeline if the API key is absent.", "Report viewable at /reports/openrouter."], "command": "python mlops/openrouter_report.py"}]</script><script>const STEPS=JSON.parse(document.getElementById("demoData").textContent);let cur=1, filter="all";function render(){  const s=STEPS.find(x=>x.n===cur);  document.getElementById("stepNo").textContent=cur;  document.querySelectorAll(".scard").forEach(c=>c.classList.toggle("active",+c.dataset.n===cur));  const tags=s.tags.map(t=>`<span class="tag">${t}</span>`).join("");  const bullets=s.bullets.map(b=>`<li>${b}</li>`).join("");  document.getElementById("detail").innerHTML=    `<h3>${s.title}<span class="livebadge">LIVE</span></h3>`+    `<div class="tags">${tags}</div>`+    `<p style="color:var(--muted)">${s.desc}</p>`+    `<ul>${bullets}</ul>`+    `<pre>${s.command}</pre>`;  document.getElementById("prevBtn").disabled=(cur===1);  document.getElementById("nextBtn").disabled=(cur===STEPS.length);  const active=document.querySelector(".scard.active");  if(active) active.scrollIntoView({block:"nearest",behavior:"smooth"});}function selectStep(n){cur=n; render();}function step(d){const nx=cur+d; if(nx>=1&&nx<=STEPS.length){cur=nx; render();}}function resetTour(){cur=1; setFilterKey("all"); render();}function setFilterKey(key){  filter=key;  document.querySelectorAll(".filter").forEach(f=>f.classList.toggle("active",f.dataset.filter===key));  document.querySelectorAll(".scard").forEach(c=>{    const show=(key==="all"||c.dataset.cat===key); c.classList.toggle("hidden",!show);  });}function setFilter(el){setFilterKey(el.dataset.filter);}render();</script></div></body></html>

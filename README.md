@@ -133,16 +133,21 @@ uvicorn app.main:app --reload
 
 | URL | Page |
 |-----|------|
-| <http://localhost:8000> | Iris MLOps dashboard (pipeline status, model metrics, live prediction) |
-| <http://localhost:8000/demo> | Full system architecture walkthrough |
-| <http://localhost:8000/demo/flow> | Clickable, line-by-line pipeline flow explorer |
+| <http://localhost:8000> | Iris MLOps dashboard: pipeline status, model metrics, live prediction with per-class confidence bars |
+| <http://localhost:8000/demo> | Interactive 14-step Azure MLOps demo tour + full system architecture board |
+| <http://localhost:8000/demo/flow> | Line-by-line flow explorer (24 steps) with progress and detail panel |
 | <http://localhost:8000/docs> | Swagger UI (interactive API docs) |
 
+Static, offline copies of the demo pages are committed for viewing without a
+running server:
+
+- [`docs/demo_showcase.html`](docs/demo_showcase.html) — offline copy of `/demo`
+- [`docs/flow_explorer.html`](docs/flow_explorer.html) — offline copy of `/demo/flow`
+
 The dashboard is served directly by FastAPI as plain HTML/CSS/JS (no separate
-frontend). Requesting `/` with `Accept: application/json` still returns the
-machine-readable service descriptor, so existing clients are unaffected. Static
-offline copies live at [`docs/demo_showcase.html`](docs/demo_showcase.html) and
-[`docs/flow_explorer.html`](docs/flow_explorer.html).
+frontend, no build step, no CDN). Requesting `/` with `Accept: application/json`
+still returns the machine-readable service descriptor, so existing clients are
+unaffected. The same UI is served from the Docker image.
 
 ## Azure setup
 
