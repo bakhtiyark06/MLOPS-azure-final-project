@@ -1,49 +1,31 @@
 %% Author:  Bakhtiyar Khan
 %% Date:    2026-06-27
 %% Purpose: End-to-end MLOps architecture for the Azure final project.
-flowchart TD
-    Dev[Developer] -->|git push| GH[GitHub Repository]
+%% GitHub-safe Mermaid syntax: graph TD, simple quoted labels, no subgraphs.
+graph TD
+    A["GitHub Repository"] --> B["GitHub Actions CI"]
+    B --> C["Run Tests"]
+    C --> D["Train Model"]
+    D --> E["Evaluate Quality Gate"]
+    E --> F{"Gate Passed"}
+    F -->|Yes| G["Register Model Azure ML"]
+    F -->|No| H["Stop Deployment"]
 
-    subgraph CI["GitHub Actions - CI (ci.yml)"]
-        I1[Install deps] --> I2[pytest + coverage >= 70%]
-        I2 --> I3[Ingest data]
-        I3 --> I4[Train model + MLflow]
-        I4 --> I5[Quality gate]
-        I5 --> I6[Drift detection]
-        I6 --> I7[OpenRouter AI report]
-    end
+    G --> I["Build Docker Image"]
+    I --> J["Push Image to ACR"]
+    J --> K["Deploy Staging ACI"]
+    K --> L["Smoke Test Staging"]
+    L --> M["Deploy Production AKS"]
+    M --> N["Smoke Test Production"]
 
-    subgraph CD["GitHub Actions - CD (cd.yml)"]
-        D0[Azure login] --> D1[Train]
-        D1 --> D2[Quality gate]
-        D2 -->|pass| D3[Register model in Azure ML]
-        D2 -->|fail| STOP[Stop - block deploy]
-        D3 --> D4[Build image]
-        D4 --> D5[Push to ACR]
-        D5 --> D6[Deploy ACI staging]
-        D6 --> D7[Smoke test]
-        D7 --> D8[Deploy AKS production]
-        D8 --> D9[Smoke test]
-    end
+    N --> O["FastAPI Endpoint"]
+    O --> P["Application Insights"]
+    P --> Q["Azure Monitor"]
 
-    GH --> CI
-    GH --> CD
+    D --> R["MLflow Tracking"]
+    D --> S["Azure Blob Storage"]
+    S --> T["Data Versioning"]
 
-    subgraph Azure["Microsoft Azure"]
-        Blob[(Azure Blob Storage)]
-        AML[Azure ML Workspace + Model Registry]
-        ACR[(Azure Container Registry)]
-        ACI[Azure Container Instances - Staging]
-        AKS[Azure Kubernetes Service - Production]
-        MON[Azure Monitor + Application Insights]
-    end
-
-    I3 -. upload raw/reference .-> Blob
-    D3 --> AML
-    D5 --> ACR
-    ACR --> ACI
-    ACR --> AKS
-    ACI -. telemetry .-> MON
-    AKS -. telemetry .-> MON
-
-    Users[API Clients] -->|POST /predict| AKS
+    O --> U["Evidently Drift Detection"]
+    U --> V["Drift Report"]
+    V --> W["OpenRouter AI Report"]

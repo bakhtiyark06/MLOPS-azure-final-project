@@ -51,46 +51,33 @@ laptop with no Azure account. Nothing fails just because a credential is missing
 ## Architecture
 
 ```mermaid
-flowchart TD
-    Dev[Developer] -->|git push| GH[GitHub Repository]
+graph TD
+    A["GitHub Repository"] --> B["GitHub Actions CI"]
+    B --> C["Run Tests"]
+    C --> D["Train Model"]
+    D --> E["Evaluate Quality Gate"]
+    E --> F{"Gate Passed"}
+    F -->|Yes| G["Register Model Azure ML"]
+    F -->|No| H["Stop Deployment"]
 
-    subgraph CI["GitHub Actions - CI (ci.yml)"]
-        I2[pytest + coverage >= 70%] --> I3[Ingest data]
-        I3 --> I4[Train model + MLflow]
-        I4 --> I5[Quality gate]
-        I5 --> I6[Drift detection]
-        I6 --> I7[OpenRouter AI report]
-    end
+    G --> I["Build Docker Image"]
+    I --> J["Push Image to ACR"]
+    J --> K["Deploy Staging ACI"]
+    K --> L["Smoke Test Staging"]
+    L --> M["Deploy Production AKS"]
+    M --> N["Smoke Test Production"]
 
-    subgraph CD["GitHub Actions - CD (cd.yml)"]
-        D0[Azure login] --> D2[Train + Quality gate]
-        D2 -->|pass| D3[Register model in Azure ML]
-        D2 -->|fail| STOP[Stop - block deploy]
-        D3 --> D5[Build + push to ACR]
-        D5 --> D6[Deploy ACI staging + smoke test]
-        D6 --> D8[Deploy AKS production + smoke test]
-    end
+    N --> O["FastAPI Endpoint"]
+    O --> P["Application Insights"]
+    P --> Q["Azure Monitor"]
 
-    GH --> CI
-    GH --> CD
+    D --> R["MLflow Tracking"]
+    D --> S["Azure Blob Storage"]
+    S --> T["Data Versioning"]
 
-    subgraph Azure["Microsoft Azure"]
-        Blob[(Azure Blob Storage)]
-        AML[Azure ML + Model Registry]
-        ACR[(Azure Container Registry)]
-        ACI[ACI - Staging]
-        AKS[AKS - Production]
-        MON[Azure Monitor + App Insights]
-    end
-
-    I3 -. upload .-> Blob
-    D3 --> AML
-    D5 --> ACR
-    ACR --> ACI
-    ACR --> AKS
-    ACI -. telemetry .-> MON
-    AKS -. telemetry .-> MON
-    Users[API Clients] -->|POST /predict| AKS
+    O --> U["Evidently Drift Detection"]
+    U --> V["Drift Report"]
+    V --> W["OpenRouter AI Report"]
 ```
 
 Full details: [`docs/architecture.md`](docs/architecture.md) ·
