@@ -17,32 +17,28 @@ tests.
 
 ```mermaid
 graph TD
-    A["GitHub Repository"] --> B["GitHub Actions CI"]
-    B --> C["Run Tests"]
-    C --> D["Train Model"]
-    D --> E["Evaluate Quality Gate"]
-    E --> F{"Gate Passed"}
-    F -->|Yes| G["Register Model Azure ML"]
-    F -->|No| H["Stop Deployment"]
-
-    G --> I["Build Docker Image"]
-    I --> J["Push Image to ACR"]
-    J --> K["Deploy Staging ACI"]
-    K --> L["Smoke Test Staging"]
-    L --> M["Deploy Production AKS"]
-    M --> N["Smoke Test Production"]
-
-    N --> O["FastAPI Endpoint"]
-    O --> P["Application Insights"]
-    P --> Q["Azure Monitor"]
-
-    D --> R["MLflow Tracking"]
-    D --> S["Azure Blob Storage"]
-    S --> T["Data Versioning"]
-
-    O --> U["Evidently Drift Detection"]
-    U --> V["Drift Report"]
-    V --> W["OpenRouter AI Report"]
+    A[GitHub Repository] --> B[GitHub Actions CI]
+    B --> C[Run Tests]
+    C --> D[Train Model]
+    D --> E[Evaluate Quality Gate]
+    E --> F[Gate Passed]
+    F --> G[Register Model Azure ML]
+    E --> H[Stop Deployment On Failure]
+    G --> I[Build Docker Image]
+    I --> J[Push Image to ACR]
+    J --> K[Deploy Staging ACI]
+    K --> L[Smoke Test Staging]
+    L --> M[Deploy Production AKS]
+    M --> N[Smoke Test Production]
+    N --> O[FastAPI Endpoint]
+    O --> P[Application Insights]
+    P --> Q[Azure Monitor]
+    D --> R[MLflow Tracking]
+    D --> S[Azure Blob Storage]
+    S --> T[Data Versioning]
+    O --> U[Evidently Drift Detection]
+    U --> V[Drift Report]
+    V --> W[OpenRouter AI Report]
 ```
 
 ## Components
