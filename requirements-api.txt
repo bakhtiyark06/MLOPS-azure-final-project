@@ -1,0 +1,13 @@
+# ---------------------------------------------------------------------------
+# Lean runtime dependencies for the FastAPI serving container only.
+# The heavy training / Azure / drift libraries are intentionally excluded so the
+# production image stays small and fast to build. Application Insights export is
+# optional and enabled at runtime when the connection string is present.
+# ---------------------------------------------------------------------------
+fastapi>=0.110
+uvicorn[standard]>=0.29
+pydantic>=2.6
+scikit-learn>=1.4
+numpy>=1.26
+joblib>=1.3
+opencensus-ext-azure>=1.1.13

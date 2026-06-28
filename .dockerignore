@@ -1,0 +1,25 @@
+# Keep the build context small and the image clean.
+# NOTE: models/ is intentionally NOT ignored - the trained model.joblib must be
+# copied into the serving image.
+.git
+.github
+.venv
+venv
+__pycache__
+*.pyc
+.pytest_cache
+.coverage
+coverage.xml
+htmlcov
+mlruns
+mlartifacts
+tests
+docs
+data
+reports
+*.md
+.env
+.env.*
+!.env.example
+requirements.txt
+requirements-dev.txt

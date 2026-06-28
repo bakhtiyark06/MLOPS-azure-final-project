@@ -1,0 +1,74 @@
+# ---------------------------------------------------------------------------
+# Author:  Bakhtiyar Khan
+# Date:    2026-06-27
+# Purpose: Continuous Integration. Runs on every push / PR: installs deps, lints,
+#          runs the test suite with coverage (>=70% enforced), trains the model,
+#          runs the quality gate and generates the OpenRouter AI summary. Build
+#          artifacts are uploaded for inspection.
+# ---------------------------------------------------------------------------
+name: CI
+
+on:
+  push:
+    branches: ["**"]
+  pull_request:
+    branches: [main, master]
+  workflow_dispatch:
+
+jobs:
+  test-and-train:
+    runs-on: ubuntu-latest
+    env:
+      MLFLOW_TRACKING_URI: file:./mlruns
+      MLFLOW_EXPERIMENT_NAME: iris-mlops
+      ACCURACY_THRESHOLD: "0.90"
+      # OpenRouter is optional; the step never fails if the secret is absent.
+      OPENROUTER_API_KEY: ${{ secrets.OPENROUTER_API_KEY }}
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Python 3.11
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements-dev.txt
+
+      - name: Lint (ruff)
+        run: ruff check app mlops tests
+        continue-on-error: true
+
+      - name: Run tests with coverage
+        run: pytest --cov=app --cov=mlops --cov-report=xml --cov-report=term-missing --cov-fail-under=70
+
+      - name: Data ingestion
+        run: python mlops/ingest_data.py --no-upload
+
+      - name: Train model
+        run: python mlops/train.py
+
+      - name: Quality gate (evaluation)
+        run: python mlops/evaluate.py
+
+      - name: Drift detection
+        run: python mlops/drift_detection.py
+
+      - name: OpenRouter AI report
+        run: python mlops/openrouter_report.py
+
+      - name: Upload reports & model artifacts
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: mlops-artifacts
+          path: |
+            reports/
+            models/
+            coverage.xml
+          if-no-files-found: warn

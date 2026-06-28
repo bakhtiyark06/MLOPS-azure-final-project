@@ -1,0 +1,110 @@
+# ---------------------------------------------------------------------------
+# Author:  Bakhtiyar Khan
+# Date:    2026-06-27
+# Purpose: Continuous Deployment. On pushes to main (or manual dispatch):
+#          Azure login -> train -> quality gate -> register model -> build &
+#          push image to ACR -> deploy to ACI (staging) + smoke test -> deploy
+#          to AKS (production) + smoke test. The quality gate failing stops the
+#          whole pipeline before anything is deployed.
+# ---------------------------------------------------------------------------
+name: CD
+
+on:
+  push:
+    branches: [main, master]
+  workflow_dispatch:
+
+# Avoid overlapping production deployments.
+concurrency:
+  group: cd-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    environment: production
+    env:
+      AZURE_CLIENT_ID: ${{ secrets.AZURE_CLIENT_ID }}
+      AZURE_CLIENT_SECRET: ${{ secrets.AZURE_CLIENT_SECRET }}
+      AZURE_TENANT_ID: ${{ secrets.AZURE_TENANT_ID }}
+      AZURE_SUBSCRIPTION_ID: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+      AZURE_RESOURCE_GROUP: ${{ secrets.AZURE_RESOURCE_GROUP }}
+      AZURE_WORKSPACE_NAME: ${{ secrets.AZURE_WORKSPACE_NAME }}
+      AZURE_STORAGE_ACCOUNT: ${{ secrets.AZURE_STORAGE_ACCOUNT }}
+      AZURE_STORAGE_CONTAINER: ${{ secrets.AZURE_STORAGE_CONTAINER }}
+      AZURE_ACR_NAME: ${{ secrets.AZURE_ACR_NAME }}
+      AZURE_AKS_CLUSTER: ${{ secrets.AZURE_AKS_CLUSTER }}
+      OPENROUTER_API_KEY: ${{ secrets.OPENROUTER_API_KEY }}
+      APPINSIGHTS_CONNECTION_STRING: ${{ secrets.APPINSIGHTS_CONNECTION_STRING }}
+      ACCURACY_THRESHOLD: "0.90"
+      GIT_SHA: ${{ github.sha }}
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Python 3.11
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+
+      # ---- Azure login (service principal from GitHub Secrets) -------------
+      - name: Azure login
+        uses: azure/login@v2
+        with:
+          creds: |
+            {
+              "clientId": "${{ secrets.AZURE_CLIENT_ID }}",
+              "clientSecret": "${{ secrets.AZURE_CLIENT_SECRET }}",
+              "subscriptionId": "${{ secrets.AZURE_SUBSCRIPTION_ID }}",
+              "tenantId": "${{ secrets.AZURE_TENANT_ID }}"
+            }
+
+      - name: Install kubectl
+        uses: azure/setup-kubectl@v4
+
+      # ---- Train + gate BEFORE any deployment ------------------------------
+      - name: Data ingestion
+        run: python mlops/ingest_data.py
+
+      - name: Train model
+        run: python mlops/train.py
+
+      - name: Quality gate (blocks deploy on failure)
+        run: python mlops/evaluate.py
+
+      - name: Register model in Azure ML
+        run: python mlops/register_model.py
+
+      # ---- Build & push image ---------------------------------------------
+      - name: Build and push image to ACR
+        run: python mlops/build_container.py
+
+      # ---- Staging: ACI + smoke test --------------------------------------
+      - name: Deploy to ACI (staging)
+        run: python mlops/deploy_aci.py --tag latest
+
+      # ---- Production: AKS + smoke test -----------------------------------
+      - name: Deploy to AKS (production)
+        run: python mlops/deploy_aks.py --tag latest
+
+      # ---- Monitoring + report --------------------------------------------
+      - name: Drift detection
+        run: python mlops/drift_detection.py
+
+      - name: OpenRouter AI report
+        run: python mlops/openrouter_report.py
+
+      - name: Upload deployment artifacts
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: cd-artifacts
+          path: reports/
+          if-no-files-found: warn
